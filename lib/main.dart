@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:scholar_agenda/page/agenda/agenda_page.dart';
 import 'package:scholar_agenda/page/home/home_page.dart';
 import 'package:scholar_agenda/page/settings/settings_page.dart';
+import 'package:scholar_agenda/page/subject/subject_form.dart';
 import 'package:scholar_agenda/page/subject/subject_page.dart';
 import 'package:scholar_agenda/page/timetable/timetable_page.dart';
 
@@ -20,6 +21,7 @@ class ScholarAgendaApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         AGENDA_PAGE_ROUTE: (BuildContext context) => AgendaPage(),
         SUBJECT_PAGE_ROUTE: (BuildContext context) => SubjectPage(),
+        SUBJECT_FORM_ROUTE: (BuildContext context) => SubjectForm(),
         TIMETABLE_PAGE_ROUTE: (BuildContext context) => TimetablePage(),
         SETTINGS_PAGE_ROUTE: (BuildContext context) => SettingsPage(),
       },

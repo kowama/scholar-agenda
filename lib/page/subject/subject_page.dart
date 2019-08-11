@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scholar_agenda/page/subject/subject_form.dart';
 import '../navigation.dart';
 
 const String SUBJECT_PAGE_ROUTE = "/subject";
@@ -12,8 +13,6 @@ class SubjectPage extends StatefulWidget {
 }
 
 class _SubjectPageState extends State<SubjectPage> {
-  _action() {}
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +31,7 @@ class _SubjectPageState extends State<SubjectPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _action(),
+        onPressed: () => Navigator.pushNamed(context, SUBJECT_FORM_ROUTE),
         tooltip: 'Action',
         child: Icon(Icons.add),
       ),

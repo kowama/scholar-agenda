@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 
 class Subject {
   final String id;
@@ -7,11 +6,7 @@ class Subject {
   Color color;
   String description;
 
-  Subject(
-      {@required this.id,
-      @required this.title,
-      @required this.color,
-      this.description});
+  Subject({this.id, this.title, this.color, this.description});
 
   @override
   bool operator ==(Object other) =>
