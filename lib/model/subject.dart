@@ -4,6 +4,7 @@ class Subject {
   final String id;
   String title;
   Color color;
+  String teacher;
   String description;
 
   Subject({this.id, this.title, this.color, this.description});
