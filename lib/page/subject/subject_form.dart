@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:scholar_agenda/model/subject.dart';
 import 'package:scholar_agenda/page/subject/subject_page.dart';
+import 'package:scholar_agenda/service/dao.dart';
 
 const String SUBJECT_FORM_ROUTE = "/subject/form";
 
@@ -20,23 +21,26 @@ class _SubjectFormState extends State<SubjectForm> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
+  final _dbService = DbService();
 
-  Subject _subject = Subject();
-  Color _currentColor = Colors.amber;
-  bool _autovalidate = false;
+  Subject _subject = Subject(color: Colors.indigo);
+  bool _autoValidate = false;
   bool _formWasEdited = false;
 
-  void _changeColor(Color color) => setState(() => _currentColor = color);
+  void _changeColor(Color color) => setState(() => _subject.color = color);
 
   bool _saveSubject() {
     if (!_formKey.currentState.validate()) {
-      _autovalidate = true;
+      _autoValidate = true;
       showInSnackBar('Please fix the errors in red before submitting.');
       return false;
     }
+    // form validated
     final FormState form = _formKey.currentState;
     form.save();
-    showInSnackBar('${_subject.title}\'s  teacher is ${_subject.teacher}');
+
+    _dbService.subject.insert(_subject);
+    showInSnackBar('$_subject');
     return true;
   }
 
@@ -102,7 +106,7 @@ class _SubjectFormState extends State<SubjectForm> {
         bottom: false,
         child: Form(
           key: _formKey,
-          autovalidate: _autovalidate,
+          autovalidate: _autoValidate,
           onWillPop: _warnUserAboutInvalidData,
           child: Scrollbar(
             child: SingleChildScrollView(
@@ -143,11 +147,11 @@ class _SubjectFormState extends State<SubjectForm> {
                     child: ListTile(
                       leading: Icon(
                         Icons.color_lens,
-                        color: _currentColor,
+                        color: _subject.color,
                       ),
                       title: Text('Pick a color'),
                       trailing: CircleColor(
-                        color: _currentColor,
+                        color: _subject.color,
                         circleSize: 30,
                       ),
                       onTap: () {
@@ -158,7 +162,7 @@ class _SubjectFormState extends State<SubjectForm> {
                               title: Text('Select a color'),
                               content: SingleChildScrollView(
                                 child: MaterialColorPicker(
-                                  selectedColor: _currentColor,
+                                  selectedColor: _subject.color,
                                   onColorChange: _changeColor,
                                 ),
                               ),
@@ -199,16 +203,20 @@ class _SubjectFormState extends State<SubjectForm> {
                       helperText: 'a short description text about the subject',
                       labelText: 'Add note text',
                     ),
+                    onSaved: (String value) {
+                      _subject.description = value;
+                    },
                   ),
                   const SizedBox(height: _separationHeight),
-                  RaisedButton(
+                  RaisedButton.icon(
+                    icon: Icon(Icons.save),
                     color: Colors.indigo,
                     textColor: Colors.white,
                     elevation: 2,
                     onPressed: () {
                       if (!_saveSubject()) return;
                     },
-                    child: Text('Submit'),
+                    label: Text('Submit'),
                   ),
                 ],
               ),
