@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../navigation.dart';
 
-const String AGENDA_PAGE_ROUTE = "/agenda";
-
 class AgendaPage extends StatefulWidget {
-  AgendaPage({Key key}) : super(key: key);
+  static const routeName = "/agenda";
   final String title = "Agenda";
+
+  AgendaPage({Key key}) : super(key: key);
 
   @override
   _AgendaPageState createState() => _AgendaPageState();

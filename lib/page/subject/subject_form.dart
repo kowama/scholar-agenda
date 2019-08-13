@@ -5,17 +5,17 @@ import 'package:scholar_agenda/model/subject.dart';
 import 'package:scholar_agenda/page/subject/subject_page.dart';
 import 'package:scholar_agenda/service/dao.dart';
 
-const String SUBJECT_FORM_ROUTE = "/subject/form";
-
-class SubjectForm extends StatefulWidget {
-  SubjectForm({Key key}) : super(key: key);
+class SubjectFormPage extends StatefulWidget {
+  static const routeName = "/subject/form";
   final String title = 'Subject Form';
 
+  SubjectFormPage({Key key}) : super(key: key);
+
   @override
-  _SubjectFormState createState() => _SubjectFormState();
+  _SubjectFormPageState createState() => _SubjectFormPageState();
 }
 
-class _SubjectFormState extends State<SubjectForm> {
+class _SubjectFormPageState extends State<SubjectFormPage> {
   static const _widthOffset = 16.0;
   static const _separationHeight = 24.0;
 
@@ -32,7 +32,7 @@ class _SubjectFormState extends State<SubjectForm> {
   bool _saveSubject() {
     if (!_formKey.currentState.validate()) {
       _autoValidate = true;
-      showInSnackBar('Please fix the errors in red before submitting.');
+      _showInSnackBar('Please fix the errors in red before submitting.');
       return false;
     }
     // form validated
@@ -40,11 +40,16 @@ class _SubjectFormState extends State<SubjectForm> {
     form.save();
 
     _dbService.subject.insert(_subject);
-    showInSnackBar('$_subject');
+    _showInSnackBar('$_subject');
     return true;
   }
 
-  void showInSnackBar(String value) {
+  void _onSaveButtonPressed() {
+    if (!_saveSubject()) return;
+    Navigator.pushNamed(context, SubjectPage.routeName);
+  }
+
+  void _showInSnackBar(String value) {
     _scaffoldKey.currentState.showSnackBar(SnackBar(
       content: Text(value),
     ));
@@ -93,12 +98,7 @@ class _SubjectFormState extends State<SubjectForm> {
       appBar: AppBar(
         title: Text(widget.title),
         actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.save),
-              onPressed: () {
-                if (!_saveSubject()) return;
-                Navigator.pushNamed(context, SUBJECT_PAGE_ROUTE);
-              })
+          IconButton(icon: Icon(Icons.save), onPressed: _onSaveButtonPressed)
         ],
       ),
       body: SafeArea(
@@ -213,9 +213,7 @@ class _SubjectFormState extends State<SubjectForm> {
                     color: Colors.indigo,
                     textColor: Colors.white,
                     elevation: 2,
-                    onPressed: () {
-                      if (!_saveSubject()) return;
-                    },
+                    onPressed: _onSaveButtonPressed,
                     label: Text('Submit'),
                   ),
                 ],

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../navigation.dart';
 
-const String SETTINGS_PAGE_ROUTE = "/settings";
-
 class SettingsPage extends StatefulWidget {
-  SettingsPage({Key key}) : super(key: key);
+  static const routeName = "/settings";
   final String title = "Settings";
+
+  SettingsPage({Key key}) : super(key: key);
 
   @override
   _SettingsPageState createState() => _SettingsPageState();

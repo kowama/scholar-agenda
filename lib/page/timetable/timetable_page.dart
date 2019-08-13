@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../navigation.dart';
 
-const String TIMETABLE_PAGE_ROUTE = "/timetable";
-
 class TimetablePage extends StatefulWidget {
-  TimetablePage({Key key}) : super(key: key);
+  static const String routeName = "/timetable";
+
   final String title = "Timetable";
+
+  TimetablePage({Key key}) : super(key: key);
 
   @override
   _TimetablePageState createState() => _TimetablePageState();

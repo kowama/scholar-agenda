@@ -3,11 +3,12 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 import '../navigation.dart';
 
-const String HOME_PAGE_ROUTE = "/";
-
 class HomePage extends StatefulWidget {
-  HomePage({Key key}) : super(key: key);
+  static const routeName = "/";
+
   final String title = "Home";
+
+  HomePage({Key key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
