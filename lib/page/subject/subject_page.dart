@@ -87,8 +87,12 @@ class SubjectCard extends StatelessWidget {
       child: ListTile(
         leading: Icon(Icons.school, color: subjectItem.color),
         title: Text(subjectItem.title),
-        subtitle:
-            Text(subjectItem.teacher != null ? subjectItem.teacher : 'none'),
+        subtitle: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Text(
+            subjectItem.teacher != null ? subjectItem.teacher : 'none',
+          ),
+        ),
         trailing: Icon(
           Icons.details,
           color: subjectItem.color,

@@ -7,27 +7,35 @@ import 'package:scholar_agenda/service/dao.dart';
 
 class SubjectFormPage extends StatefulWidget {
   static const routeName = "/subject/form";
-  final String title = 'Subject Form';
+  final String title;
+  final Subject subject;
+  final bool isCreate;
 
-  SubjectFormPage({Key key}) : super(key: key);
+  SubjectFormPage({Key key, this.subject})
+      : isCreate = subject == null,
+        title = subject == null ? 'Subject Create' : 'Subject Edit',
+        super(key: key);
 
   @override
-  _SubjectFormPageState createState() => _SubjectFormPageState();
+  _SubjectFormPageState createState() => _SubjectFormPageState(
+      subject: isCreate ? Subject(color: Colors.indigo) : subject);
 }
 
 class _SubjectFormPageState extends State<SubjectFormPage> {
-  static const _widthOffset = 16.0;
-  static const _separationHeight = 24.0;
+  static const _horizontalPad = 16.0;
+  static const _verticalPad = 24.0;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   final _dbService = DbService();
 
-  Subject _subject = Subject(color: Colors.indigo);
+  Subject subject;
   bool _autoValidate = false;
   bool _formWasEdited = false;
 
-  void _changeColor(Color color) => setState(() => _subject.color = color);
+  _SubjectFormPageState({this.subject}) : assert(subject != null);
+
+  void _changeColor(Color color) => setState(() => subject.color = color);
 
   bool _saveSubject() {
     if (!_formKey.currentState.validate()) {
@@ -38,15 +46,20 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
     // form validated
     final FormState form = _formKey.currentState;
     form.save();
-
-    _dbService.subject.insert(_subject);
-    _showInSnackBar('$_subject');
+    if (widget.isCreate) {
+      _dbService.subject.insert(subject);
+    } else {
+      _dbService.subject.update(subject);
+    }
     return true;
   }
 
-  void _onSaveButtonPressed() {
+  void _onSubmitButtonPressed() {
     if (!_saveSubject()) return;
-    Navigator.pushNamed(context, SubjectPage.routeName);
+    if (widget.isCreate)
+      Navigator.pushNamed(context, SubjectPage.routeName);
+    else
+      Navigator.pop(context);
   }
 
   void _showInSnackBar(String value) {
@@ -97,8 +110,9 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(widget.title),
+        backgroundColor: widget.isCreate ? Colors.indigo : subject.color,
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.save), onPressed: _onSaveButtonPressed)
+          IconButton(icon: Icon(Icons.save), onPressed: _onSubmitButtonPressed)
         ],
       ),
       body: SafeArea(
@@ -111,10 +125,10 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
           child: Scrollbar(
             child: SingleChildScrollView(
               dragStartBehavior: DragStartBehavior.down,
-              padding: const EdgeInsets.symmetric(horizontal: _widthOffset),
+              padding: const EdgeInsets.symmetric(horizontal: _horizontalPad),
               child: Column(
                 children: <Widget>[
-                  const SizedBox(height: _separationHeight),
+                  const SizedBox(height: _verticalPad),
                   TextFormField(
                     decoration: InputDecoration(
                         icon: Icon(Icons.title),
@@ -124,11 +138,12 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
                         filled: true,
                         alignLabelWithHint: true),
                     onSaved: (String value) {
-                      _subject.title = value;
+                      subject.title = value;
                     },
+                    initialValue: widget.isCreate ? '' : subject.title,
                     validator: _validateRequiredField,
                   ),
-                  const SizedBox(height: _separationHeight),
+                  const SizedBox(height: _verticalPad),
                   TextFormField(
                     decoration: InputDecoration(
                         icon: Icon(Icons.person_pin),
@@ -137,21 +152,22 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
                         border: UnderlineInputBorder(),
                         filled: true,
                         alignLabelWithHint: true),
+                    initialValue: widget.isCreate ? '' : subject.teacher,
                     onSaved: (String value) {
-                      _subject.teacher = value;
+                      subject.teacher = value;
                     },
                   ),
-                  const SizedBox(height: _separationHeight),
+                  const SizedBox(height: _verticalPad),
                   Padding(
-                    padding: const EdgeInsets.only(left: _widthOffset * 2),
+                    padding: const EdgeInsets.only(left: _horizontalPad * 2),
                     child: ListTile(
                       leading: Icon(
                         Icons.color_lens,
-                        color: _subject.color,
+                        color: subject.color,
                       ),
                       title: Text('Pick a color'),
                       trailing: CircleColor(
-                        color: _subject.color,
+                        color: subject.color,
                         circleSize: 30,
                       ),
                       onTap: () {
@@ -162,7 +178,7 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
                               title: Text('Select a color'),
                               content: SingleChildScrollView(
                                 child: MaterialColorPicker(
-                                  selectedColor: _subject.color,
+                                  selectedColor: subject.color,
                                   onColorChange: _changeColor,
                                 ),
                               ),
@@ -192,7 +208,7 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
                       },
                     ),
                   ),
-                  const SizedBox(height: _separationHeight),
+                  const SizedBox(height: _verticalPad),
                   TextFormField(
                     keyboardType: TextInputType.multiline,
                     maxLines: 5,
@@ -203,17 +219,18 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
                       helperText: 'a short description text about the subject',
                       labelText: 'Add note text',
                     ),
+                    initialValue: widget.isCreate ? '' : subject.description,
                     onSaved: (String value) {
-                      _subject.description = value;
+                      subject.description = value;
                     },
                   ),
-                  const SizedBox(height: _separationHeight),
+                  const SizedBox(height: _verticalPad),
                   RaisedButton.icon(
                     icon: Icon(Icons.save),
-                    color: Colors.indigo,
+                    color: widget.isCreate ? Colors.indigo : subject.color,
                     textColor: Colors.white,
                     elevation: 2,
-                    onPressed: _onSaveButtonPressed,
+                    onPressed: _onSubmitButtonPressed,
                     label: Text('Submit'),
                   ),
                 ],

@@ -69,8 +69,6 @@ class SubjectProvider {
   }
 
   Future<Subject> insert(Subject subject) async {
-    print("<<<OPEN>>");
-    print(subject.toMap());
     subject.id = await _database.insert(tableSubject, subject.toMap());
     return subject;
   }
