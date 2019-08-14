@@ -1,14 +1,23 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'localization_en.dart';
-import 'localization_fr.dart';
 
 abstract class Localization {
   static Localization of(BuildContext context) {
     return Localizations.of<Localization>(context, Localization);
   }
+
+  String get close;
+  String get edit;
+  String get delete;
+  String get add;
+  String get action;
+  String get confirm;
+  String get cancel;
+  String get areYouSure;
 }
 
 class ScholarAgendaAppLocalizationsDelegate
@@ -30,7 +39,8 @@ class ScholarAgendaAppLocalizationsDelegate
     Intl.defaultLocale = localeName;
 
     if (locale.languageCode == "fr") {
-      return LocalizationFR();
+//      return LocalizationFR();
+      return LocalizationEN();
     } else {
       return LocalizationEN();
     }

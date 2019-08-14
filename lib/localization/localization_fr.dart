@@ -1,3 +1,3 @@
 import 'localization.dart';
 
-class LocalizationFR implements Localization {}
+abstract class LocalizationFR implements Localization {}

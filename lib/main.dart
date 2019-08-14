@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:scholar_agenda/page/agenda/agenda_page.dart';
 import 'package:scholar_agenda/page/home/home_page.dart';
 import 'package:scholar_agenda/page/settings/settings_page.dart';
 import 'package:scholar_agenda/page/subject/subject_page.dart';
 import 'package:scholar_agenda/page/timetable/timetable_page.dart';
+
+import 'localization/localization.dart';
 
 void main() => runApp(ScholarAgendaApp());
 
@@ -22,6 +25,15 @@ class ScholarAgendaApp extends StatelessWidget {
         TimetablePage.routeName: (BuildContext context) => TimetablePage(),
         SettingsPage.routeName: (BuildContext context) => SettingsPage(),
       },
+      localizationsDelegates: [
+        const ScholarAgendaAppLocalizationsDelegate(),
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en'),
+        const Locale('fr'),
+      ],
     );
   }
 }
