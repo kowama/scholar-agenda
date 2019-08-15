@@ -1,8 +1,8 @@
 import 'package:sqflite/sqlite_api.dart';
 
 abstract class Provider<T> {
-  Database _database;
-  ProviderConfig<T> _config;
+  final Database _database;
+  final ProviderConfig<T> _config;
 
   Provider(this._database, this._config)
       : assert(_config != null && _database != null);
@@ -53,7 +53,7 @@ abstract class ProviderConfig<T> {
 
   List<String> get columns;
 
-  T fromMap(Map<String, dynamic> map);
+  T fromMap(Map<String, dynamic> map, {Database database});
 
   Map<String, dynamic> toMap(T entity);
 

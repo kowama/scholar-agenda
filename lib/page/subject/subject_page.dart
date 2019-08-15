@@ -22,7 +22,6 @@ class _SubjectPageState extends State<SubjectPage> {
   var _subjects = <Subject>[];
 
   Future<void> _updateList() async {
-    await _dbService.initialize();
     var subjects = await _dbService.subject.getAll();
     setState(() {
       _subjects = subjects;

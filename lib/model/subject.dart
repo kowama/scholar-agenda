@@ -39,11 +39,18 @@ class Subject {
       identical(this, other) ||
       other is Subject &&
           runtimeType == other.runtimeType &&
-          title == other.title &&
+          id == other.id &&
+          color == other.color &&
+          teacher == other.teacher &&
           description == other.description;
 
   @override
-  int get hashCode => title.hashCode ^ teacher.hashCode ^ description.hashCode;
+  int get hashCode =>
+      id.hashCode ^
+      title.hashCode ^
+      color.hashCode ^
+      teacher.hashCode ^
+      description.hashCode;
 
   @override
   String toString() => '{$columnId : $id,'
@@ -54,12 +61,12 @@ class Subject {
 }
 
 class SubjectProvider extends Provider<Subject> {
-  SubjectProvider(Database database) : super(database, SubjectConfig());
+  SubjectProvider(Database database) : super(database, SubjectProviderConfig());
 }
 
-class SubjectConfig extends ProviderConfig<Subject> {
+class SubjectProviderConfig extends ProviderConfig<Subject> {
   @override
-  String get tableName => 'Subject';
+  String get tableName => Subject.tableName;
 
   @override
   String get createTableSql => '''
@@ -72,7 +79,7 @@ class SubjectConfig extends ProviderConfig<Subject> {
         ''';
 
   @override
-  String get columnId => '_id';
+  String get columnId => Subject.columnId;
 
   @override
   List<String> get columns => [
@@ -84,7 +91,7 @@ class SubjectConfig extends ProviderConfig<Subject> {
       ];
 
   @override
-  Subject fromMap(Map<String, dynamic> map) {
+  Subject fromMap(Map<String, dynamic> map,{Database database}) {
     return Subject.fromMap(map);
   }
 

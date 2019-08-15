@@ -7,10 +7,15 @@ import 'package:scholar_agenda/page/home/home_page.dart';
 import 'package:scholar_agenda/page/settings/settings_page.dart';
 import 'package:scholar_agenda/page/subject/subject_page.dart';
 import 'package:scholar_agenda/page/timetable/timetable_page.dart';
+import 'package:scholar_agenda/service/dao.dart';
 
 import 'localization/localization.dart';
 
-void main() => runApp(ScholarAgendaApp());
+void main() async {
+  var dbService = DbService();
+  await dbService.initialize();
+  runApp(ScholarAgendaApp());
+}
 
 class ScholarAgendaApp extends StatelessWidget {
   @override
@@ -23,12 +28,6 @@ class ScholarAgendaApp extends StatelessWidget {
         primaryColor: Colors.indigo,
         accentColor: Colors.blue,
         primaryColorDark: Colors.indigo[800],
-        fontFamily: 'Montserrat',
-        textTheme: TextTheme(
-          headline: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
-          title: TextStyle(fontSize: 36.0),
-          body1: TextStyle(fontSize: 14.0, fontFamily: 'Hind'),
-        ),
       ),
       home: HomePage(),
       routes: <String, WidgetBuilder>{

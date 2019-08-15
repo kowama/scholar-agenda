@@ -110,21 +110,18 @@ class _FirstTab extends StatelessWidget {
           child: ListTile(
             leading: Icon(Icons.subject),
             title: Text(subject.title),
-//            trailing: Text('title'),
           ),
         ),
         Card(
           child: ListTile(
             leading: Icon(Icons.perm_identity),
             title: Text(subject.teacher),
-//            trailing: Text('teacher'),
           ),
         ),
         Card(
           child: ListTile(
             leading: Icon(Icons.developer_board),
             title: Text(subject.description),
-//            trailing: Text('description'),
           ),
         )
       ],
