@@ -10,6 +10,7 @@ abstract class Localization {
     return Localizations.of<Localization>(context, Localization);
   }
 
+  String get scholarAgenda;
   String get close;
   String get edit;
   String get delete;

@@ -196,10 +196,10 @@ class SubjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle = Theme.of(context).textTheme.display1;
-    if (selected)
-      textStyle = textStyle.copyWith(color: Colors.lightGreenAccent[400]);
     return Card(
+      color: selected
+          ? Theme.of(context).selectedRowColor
+          : Theme.of(context).scaffoldBackgroundColor,
       child: ListTile(
         leading: Icon(Icons.school, color: subjectItem.color),
         title: Text(subjectItem.title),

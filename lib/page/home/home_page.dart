@@ -17,7 +17,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _dialVisible = true;
 
-  SpeedDial _buildSpeedDial() {
+  SpeedDial _buildSpeedDial(BuildContext context) {
     return SpeedDial(
       // both default to 16
       marginRight: 18,
@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
       onClose: () => print('DIAL CLOSED'),
       tooltip: 'Speed Dial',
       heroTag: 'speed-dial-hero-tag',
-      backgroundColor: Colors.indigo,
+      backgroundColor: Theme.of(context).accentColor,
       foregroundColor: Colors.white,
       elevation: 8.0,
       shape: CircleBorder(),
@@ -83,7 +83,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      floatingActionButton: _buildSpeedDial(),
+      floatingActionButton: _buildSpeedDial(context),
     );
   }
 }
