@@ -18,6 +18,7 @@ abstract class Localization {
   String get confirm;
   String get cancel;
   String get areYouSure;
+  String get calendar;
 }
 
 class ScholarAgendaAppLocalizationsDelegate

@@ -24,4 +24,7 @@ class LocalizationEN implements Localization {
 
   @override
   String get cancel => 'Cancel';
+
+  @override
+  String get calendar => 'Calendar';
 }

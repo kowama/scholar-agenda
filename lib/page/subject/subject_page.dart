@@ -111,16 +111,24 @@ class _SubjectPageState extends State<SubjectPage> {
                 Text('${Localization.of(context).delete} ${subject.title}'),
             actions: <Widget>[
               FlatButton(
-                  onPressed: () {
-                    _dbService.subject.delete(subject.id);
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(Localization.of(context).delete)),
+                color: Colors.red,
+                onPressed: () {
+                  _dbService.subject.delete(subject.id);
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  Localization.of(context).delete,
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
               FlatButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text(Localization.of(context).cancel),
+                child: Text(
+                  Localization.of(context).cancel,
+                  style: TextStyle(color: Colors.black45),
+                ),
               )
             ],
           );

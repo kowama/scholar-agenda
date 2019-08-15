@@ -31,7 +31,7 @@ class NavigationDrawer extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.calendar_today),
             title: Text('Calendar'),
-            onTap: () => Navigator.pushNamed(context, '/'),
+            onTap: () => Navigator.pushNamed(context, '/calendar'),
           ),
           Divider(),
           ListTile(
