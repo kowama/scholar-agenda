@@ -26,12 +26,11 @@ class DbService {
     var path = join(databasesPath, DB_NAME);
     var db = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
-      await SubjectProvider.createTable(db);
+      _subjectProvider = SubjectProvider(db);
+      await _subjectProvider.createTable();
     });
     _subjectProvider = SubjectProvider(db);
-    print('init database : $db');
     _database = db;
-
     initialized = true;
   }
 

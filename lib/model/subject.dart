@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 
-const String tableSubject = 'Subject';
-const String columnId = '_id';
-const String columnTitle = 'title';
-const String columnColor = 'color';
-const String columnTeacher = 'teacher';
-const String columnDescription = 'description';
+import 'abstract.dart';
 
 class Subject {
+  static const String tableName = 'Subject';
+  static const String columnId = '_id';
+  static const String columnTitle = 'title';
+  static const String columnColor = 'color';
+  static const String columnTeacher = 'teacher';
+  static const String columnDescription = 'description';
+
   int id;
   String title;
   Color color;
@@ -51,62 +53,53 @@ class Subject {
       '$columnDescription: $description}';
 }
 
-class SubjectProvider {
-  final Database _database;
+class SubjectProvider extends Provider<Subject> {
+  SubjectProvider(Database database) : super(database, SubjectConfig());
+}
 
-  SubjectProvider(this._database) : assert(_database != null);
+class SubjectConfig extends ProviderConfig<Subject> {
+  @override
+  String get tableName => 'Subject';
 
-  static Future createTable(Database db) async {
-    assert(db != null);
-    await db.execute('''
-        create table $tableSubject ( 
-          $columnId integer primary key autoincrement, 
-          $columnTitle text not null,
-          $columnColor integer not null,
-          $columnTeacher text not null,
-          $columnDescription integer not null)
-        ''');
+  @override
+  String get createTableSql => '''
+        create table ${Subject.tableName} ( 
+          ${Subject.columnId} integer primary key autoincrement, 
+          ${Subject.columnTitle} text not null,
+          ${Subject.columnColor} integer not null,
+          ${Subject.columnTeacher} text not null,
+          ${Subject.columnDescription} integer not null)
+        ''';
+
+  @override
+  String get columnId => '_id';
+
+  @override
+  List<String> get columns => [
+        Subject.columnId,
+        Subject.columnTitle,
+        Subject.columnColor,
+        Subject.columnTeacher,
+        Subject.columnDescription
+      ];
+
+  @override
+  Subject fromMap(Map<String, dynamic> map) {
+    return Subject.fromMap(map);
   }
 
-  Future<Subject> insert(Subject subject) async {
-    subject.id = await _database.insert(tableSubject, subject.toMap());
-    return subject;
+  @override
+  getIdOf(Subject subject) {
+    return subject.id;
   }
 
-  Future<List<Subject>> getAll() async {
-    var subjects = <Subject>[];
-    List<Map> maps = await _database.query(tableSubject, columns: [
-      columnId,
-      columnTitle,
-      columnColor,
-      columnTeacher,
-      columnDescription
-    ]);
-    maps.forEach((m) => subjects.add(Subject.fromMap(m)));
-    return subjects;
+  @override
+  void setIdOf(Subject subject, int value) {
+    subject.id = value;
   }
 
-  Future<Subject> getSubject(int id) async {
-    List<Map> maps = await _database.query(tableSubject,
-        columns: [
-          columnId,
-          columnTitle,
-          columnColor,
-          columnTeacher,
-          columnDescription
-        ],
-        where: '$columnId = ?',
-        whereArgs: [id]);
-    return maps.isNotEmpty ? Subject.fromMap(maps.first) : null;
-  }
-
-  Future<int> delete(int id) async {
-    return await _database
-        .delete(tableSubject, where: '$columnId = ?', whereArgs: [id]);
-  }
-
-  Future<int> update(Subject subject) async {
-    return await _database.update(tableSubject, subject.toMap(),
-        where: '$columnId = ?', whereArgs: [subject.id]);
+  @override
+  Map<String, dynamic> toMap(Subject subject) {
+    return subject.toMap();
   }
 }

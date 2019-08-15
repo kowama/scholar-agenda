@@ -28,6 +28,8 @@ class _CalendarPageState extends State<CalendarPage>
     _events = {
       _selectedDay.subtract(Duration(days: 3)):
           Set.from(['Event A9', 'Event A9', 'Event B9']).toList(),
+      _selectedDay.subtract(Duration(days: 0)):
+      Set.from(['Event A9', 'Event A9', 'Event B9']).toList(),
       _selectedDay.add(Duration(days: 2)): [
         'Event A10',
         'Event B10',
@@ -114,7 +116,7 @@ class _CalendarPageState extends State<CalendarPage>
         selectedDayBuilder: (context, date, _) {
           return Container(
             decoration: new BoxDecoration(
-              color: Colors.blue,
+              color: Colors.blue[300],
               shape: BoxShape.circle,
             ),
             margin: const EdgeInsets.all(4.0),
@@ -133,14 +135,21 @@ class _CalendarPageState extends State<CalendarPage>
         },
         todayDayBuilder: (context, date, _) {
           return Container(
+            decoration: new BoxDecoration(
+              color: Colors.indigo[400],
+              shape: BoxShape.circle,
+            ),
             margin: const EdgeInsets.all(4.0),
-            padding: const EdgeInsets.only(top: 5.0, left: 6.0),
-            color: Colors.amber[400],
             width: 100,
             height: 100,
-            child: Text(
-              '${date.day}',
-              style: TextStyle().copyWith(fontSize: 16.0),
+            child: Center(
+              child: Text(
+                '${date.day}',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  color: Colors.white,
+                ),
+              ),
             ),
           );
         },
@@ -184,10 +193,10 @@ class _CalendarPageState extends State<CalendarPage>
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
         color: _calendarController.isSelected(date)
-            ? Colors.brown[500]
+            ? Colors.orange[900]
             : _calendarController.isToday(date)
-                ? Colors.brown[300]
-                : Colors.blue[400],
+                ? Colors.red[900]
+                : Colors.orange,
       ),
       width: 16.0,
       height: 16.0,
@@ -207,7 +216,7 @@ class _CalendarPageState extends State<CalendarPage>
     return Icon(
       Icons.add_box,
       size: 20.0,
-      color: Colors.blueGrey[800],
+      color: Colors.green[800],
     );
   }
 

@@ -1,9 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:scholar_agenda/page/settings/settings_page.dart';
+
+import 'agenda/agenda_page.dart';
+import 'calendar/calendar.dart';
+import 'help_and_feedback/help_and_feedback.dart';
+import 'home/home_page.dart';
+import 'subject/subject_page.dart';
+import 'timetable/timetable_page.dart';
 
 class NavigationDrawer extends StatelessWidget {
   const NavigationDrawer({
     Key key,
   }) : super(key: key);
+
+  void _navigateTo(BuildContext context, String routeName) {
+    Navigator.of(context).pop();
+    Navigator.pushNamed(context, routeName);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,39 +34,39 @@ class NavigationDrawer extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.home),
             title: Text('Overview'),
-            onTap: () => Navigator.pushNamed(context, '/'),
+            onTap: () => _navigateTo(context, HomePage.routeName),
           ),
           ListTile(
             leading: Icon(Icons.view_agenda),
             title: Text('Agenda'),
-            onTap: () => Navigator.pushNamed(context, '/agenda'),
+            onTap: () => _navigateTo(context, AgendaPage.routeName),
           ),
           ListTile(
             leading: Icon(Icons.calendar_today),
             title: Text('Calendar'),
-            onTap: () => Navigator.pushNamed(context, '/calendar'),
+            onTap: () => _navigateTo(context, CalendarPage.routeName),
           ),
           Divider(),
           ListTile(
             leading: Icon(Icons.school),
             title: Text('Subject'),
-            onTap: () => Navigator.pushNamed(context, '/subject'),
+            onTap: () => _navigateTo(context, SubjectPage.routeName),
           ),
           ListTile(
             leading: Icon(Icons.assignment),
             title: Text('Timetable'),
-            onTap: () => Navigator.pushNamed(context, '/timetable'),
+            onTap: () => _navigateTo(context, TimetablePage.routeName),
           ),
           Divider(),
           ListTile(
             leading: Icon(Icons.help),
             title: Text('Help and feedback'),
-            onTap: () => Navigator.pushNamed(context, '/'),
+            onTap: () => _navigateTo(context, HelpAndFeedbackPage.routeName),
           ),
           ListTile(
             leading: Icon(Icons.settings),
             title: Text('Settings'),
-            onTap: () => Navigator.pushNamed(context, '/settings'),
+            onTap: () => _navigateTo(context, SettingsPage.routeName),
           ),
         ],
       ),
