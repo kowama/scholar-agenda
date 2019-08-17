@@ -20,6 +20,7 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
   final _formKey = GlobalKey<FormState>();
   final _dbService = DbService();
   List<Timetable> _timetables = <Timetable>[];
+  Timetable _defaultTimetable;
 
   bool _autoValidateForm = false;
 
@@ -58,7 +59,7 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
               itemCount: _timetables.length,
               itemBuilder: (context, index) => _buildTimetableTile(
                   _timetables[index],
-                  isDefault: _timetables[index] == _defaultTimeTable()),
+                  isDefault: _timetables[index] == _defaultTimetable),
             ),
           )
         ],
@@ -90,14 +91,26 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                       ListTile(
                         leading: Icon(Icons.check_circle),
                         title: Text(Localization.of(context).setAsDefault),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          _setAsDefault(timetable);
+                        },
                       ),
                       ListTile(
                         leading: Icon(Icons.edit),
                         title: Text(Localization.of(context).edit),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          _showTimetableForm(timetable: timetable);
+                        },
                       ),
                       ListTile(
                         leading: Icon(Icons.delete),
                         title: Text(Localization.of(context).delete),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          _showDeleteDialog(context, timetable);
+                        },
                       ),
                     ],
                   ),
@@ -119,12 +132,9 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
     );
   }
 
-  Timetable _defaultTimeTable() {
-    return _timetables[0];
-  }
-
   void _updateTimetables() async {
     var timetables = await _dbService.timetable.getAll();
+    _defaultTimetable ??= timetables.first;
     setState(() {
       _timetables = timetables;
     });
@@ -132,7 +142,7 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
 
   void _showTimetableForm({Timetable timetable}) {
     var isCreate = timetable == null;
-    if (isCreate) timetable = Timetable();
+    timetable ??= Timetable();
 
     showDialog(
         context: context,
@@ -150,8 +160,9 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                 child: ListView(
                   children: <Widget>[
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(4),
                       child: TextFormField(
+                        initialValue: isCreate ? '' : timetable.title,
                         decoration: InputDecoration(
                           labelText: '${Localization.of(context).title} *',
                           hintText: Localization.of(context).enterATitle,
@@ -167,65 +178,74 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                         },
                       ),
                     ),
-                    DateTimeField(
-                      format: dateTimeFormatter,
-                      onShowPicker: (context, currentValue) {
-                        return showDatePicker(
-                            context: context,
-                            firstDate: DateTime(1900),
-                            initialDate: currentValue ?? DateTime.now(),
-                            lastDate: DateTime(2100));
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return Localization.of(context).valueIsRequired;
-                        }
-                        return null;
-                      },
-                      onSaved: (value) {
-                        timetable.start = value;
-                      },
-                      decoration: InputDecoration(
-                        hintText: Localization.of(context).pickAStartDate,
+                    Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: DateTimeField(
+                        format: dateTimeFormatter,
+                        initialValue: isCreate ? null : timetable.start,
+                        onShowPicker: (context, currentValue) {
+                          return showDatePicker(
+                              context: context,
+                              firstDate: DateTime(1900),
+                              initialDate: currentValue ?? DateTime.now(),
+                              lastDate: DateTime(2100));
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return Localization.of(context).valueIsRequired;
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          timetable.start = value;
+                        },
+                        decoration: InputDecoration(
+                          hintText: Localization.of(context).pickAStartDate,
+                        ),
                       ),
                     ),
-                    DateTimeField(
-                      format: dateTimeFormatter,
-                      onShowPicker: (context, currentValue) {
-                        return showDatePicker(
-                            context: context,
-                            firstDate: DateTime(1900),
-                            initialDate: currentValue ?? DateTime.now(),
-                            lastDate: DateTime(2100));
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return Localization.of(context).valueIsRequired;
-                        }
-                        return null;
-                      },
-                      onSaved: (value) {
-                        timetable.end = value;
-                      },
-                      decoration: InputDecoration(
-                        hintText: Localization.of(context).pickAEndDate,
+                    Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: DateTimeField(
+                        format: dateTimeFormatter,
+                        initialValue: isCreate ? null : timetable.end,
+                        onShowPicker: (context, currentValue) {
+                          return showDatePicker(
+                              context: context,
+                              firstDate: DateTime(1900),
+                              initialDate: currentValue ?? DateTime.now(),
+                              lastDate: DateTime(2100));
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return Localization.of(context).valueIsRequired;
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          timetable.end = value;
+                        },
+                        decoration: InputDecoration(
+                          hintText: Localization.of(context).pickAEndDate,
+                        ),
                       ),
                     ),
-                    TextFormField(
-                      keyboardType: TextInputType.multiline,
-                      maxLines: 4,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText:
-                            'somme description or other details about the timetable',
-                        helperText:
-                            'a short description text about the subject',
-                        labelText: 'Add note text',
+                    Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: TextFormField(
+                        keyboardType: TextInputType.multiline,
+                        maxLines: 4,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText:
+                              'somme description or other details about the timetable',
+                          labelText: 'Add a note text',
+                        ),
+                        initialValue: isCreate ? '' : timetable.description,
+                        onSaved: (String value) {
+                          timetable.description = value;
+                        },
                       ),
-                      initialValue: isCreate ? '' : timetable.description,
-                      onSaved: (String value) {
-                        timetable.description = value;
-                      },
                     ),
                   ],
                 ),
@@ -275,5 +295,45 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
     _scaffoldKey.currentState.showSnackBar(SnackBar(
       content: Text(value),
     ));
+  }
+
+  void _setAsDefault(Timetable timetable) {
+    setState(() {
+      _defaultTimetable = timetable;
+    });
+  }
+
+  void _showDeleteDialog(BuildContext context, Timetable timetable) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(Localization.of(context).areYouSure),
+            content:
+                Text('${Localization.of(context).delete} ${timetable.title}'),
+            actions: <Widget>[
+              FlatButton(
+                color: Colors.red,
+                onPressed: () {
+                  _dbService.timetable.delete(timetable.id);
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  Localization.of(context).delete,
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  Localization.of(context).cancel,
+                  style: TextStyle(color: Colors.black45),
+                ),
+              )
+            ],
+          );
+        });
   }
 }

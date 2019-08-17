@@ -20,7 +20,7 @@ class LocalizationEN implements Localization {
   String get confirm => 'Confirm';
 
   @override
-  String get areYouSure => 'Are you sure ';
+  String get areYouSure => 'Are you sure ?';
 
   @override
   String get cancel => 'Cancel';

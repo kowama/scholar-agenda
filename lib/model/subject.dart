@@ -75,7 +75,7 @@ class SubjectProviderConfig extends ProviderConfig<Subject> {
           ${Subject.columnTitle}  TEXT NOT NULL,
           ${Subject.columnColor}  INTEGER NOT NULL,
           ${Subject.columnTeacher} TEXT NOT NULL,
-          ${Subject.columnDescription}  INTEGER NOT NULL);
+          ${Subject.columnDescription}  TEXT NOT NULL);
          ''';
 
   @override
