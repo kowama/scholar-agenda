@@ -13,23 +13,22 @@ class DbService {
   SubjectProvider _subjectProvider;
   PeriodProvider _periodProvider;
   TimetableProvider _timetableProvider;
-  bool initialized = false;
 
   factory DbService() {
     return _dbService;
   }
 
-  DbService._internal();
+  DbService._internal() {
+    _initialize();
+  }
 
   SubjectProvider get subject => _subjectProvider;
 
   PeriodProvider get period => _periodProvider;
 
-  TimetableProvider get provider => _timetableProvider;
+  TimetableProvider get timetable => _timetableProvider;
 
-  Future initialize() async {
-    if (initialized) return;
-
+  Future _initialize() async {
     var databasesPath = await getDatabasesPath();
     var path = join(databasesPath, DB_NAME);
     var database = await openDatabase(path, version: 1,
@@ -38,12 +37,13 @@ class DbService {
       _periodProvider = PeriodProvider(database);
       _timetableProvider = TimetableProvider(database);
       await _subjectProvider.createTable();
+      await _timetableProvider.createTable();
+      await _periodProvider.createTable();
     });
     _subjectProvider = SubjectProvider(database);
     _periodProvider = PeriodProvider(database);
     _timetableProvider = TimetableProvider(database);
     _database = database;
-    initialized = true;
   }
 
   Future close() async => _database.close();

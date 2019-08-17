@@ -21,15 +21,15 @@ class Timetable {
   Timetable.fromMap(Map<String, dynamic> map)
       : id = map[columnId],
         title = map[columnTitle],
-        start = map[columnStart],
-        end = map[columnEnd],
+        start = DateTime.parse(map[columnStart]),
+        end = DateTime.parse(map[columnEnd]),
         description = map[columnDescription];
 
   Map<String, dynamic> toMap() => {
         columnId: id,
         columnTitle: title,
-        columnStart: start,
-        columnEnd: end,
+        columnStart: start.toIso8601String(),
+        columnEnd: end.toIso8601String(),
         columnDescription: description,
       };
 
@@ -80,16 +80,16 @@ class TimetableProviderConfig extends ProviderConfig<Timetable> {
 
   @override
   String get createTableSql => '''
-        create table ${Timetable.tableName} ( 
-          ${Timetable.columnId} integer primary key autoincrement, 
-          ${Timetable.columnTitle} text not null,
-          ${Timetable.columnStart} text not null,
-          ${Timetable.columnEnd} text not null,
-          ${Timetable.columnDescription} text not null)
+        CREATE TABLE  ${Timetable.tableName} ( 
+          ${Timetable.columnId} INTEGER PRIMARY KEY AUTOINCREMENT, 
+          ${Timetable.columnTitle} TEXT NOT NULL,
+          ${Timetable.columnStart} TEXT NOT NULL,
+          ${Timetable.columnEnd} TEXT NOT NULL,
+          ${Timetable.columnDescription} TEXT NOT NULL);
         ''';
 
   @override
-  Timetable fromMap(Map<String, dynamic> map,{Database database}) {
+  Timetable fromMap(Map<String, dynamic> map, {Database database}) {
     return Timetable.fromMap(map);
   }
 

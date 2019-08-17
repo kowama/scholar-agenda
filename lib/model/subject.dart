@@ -70,13 +70,13 @@ class SubjectProviderConfig extends ProviderConfig<Subject> {
 
   @override
   String get createTableSql => '''
-        create table ${Subject.tableName} ( 
-          ${Subject.columnId} integer primary key autoincrement, 
-          ${Subject.columnTitle} text not null,
-          ${Subject.columnColor} integer not null,
-          ${Subject.columnTeacher} text not null,
-          ${Subject.columnDescription} integer not null)
-        ''';
+        CREATE TABLE ${Subject.tableName} ( 
+          ${Subject.columnId} INTEGER PRIMARY KEY AUTOINCREMENT, 
+          ${Subject.columnTitle}  TEXT NOT NULL,
+          ${Subject.columnColor}  INTEGER NOT NULL,
+          ${Subject.columnTeacher} TEXT NOT NULL,
+          ${Subject.columnDescription}  INTEGER NOT NULL);
+         ''';
 
   @override
   String get columnId => Subject.columnId;
@@ -91,7 +91,7 @@ class SubjectProviderConfig extends ProviderConfig<Subject> {
       ];
 
   @override
-  Subject fromMap(Map<String, dynamic> map,{Database database}) {
+  Subject fromMap(Map<String, dynamic> map, {Database database}) {
     return Subject.fromMap(map);
   }
 

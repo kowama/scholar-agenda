@@ -35,75 +35,6 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
 
   _SubjectFormPageState({this.subject}) : assert(subject != null);
 
-  void _changeColor(Color color) => setState(() => subject.color = color);
-
-  bool _saveSubject() {
-    if (!_formKey.currentState.validate()) {
-      _autoValidate = true;
-      _showInSnackBar('Please fix the errors in red before submitting.');
-      return false;
-    }
-    // form validated
-    final FormState form = _formKey.currentState;
-    form.save();
-    if (widget.isCreate) {
-      _dbService.subject.insert(subject);
-    } else {
-      _dbService.subject.update(subject);
-    }
-    return true;
-  }
-
-  void _onSubmitButtonPressed() {
-    if (!_saveSubject()) return;
-    if (widget.isCreate)
-      Navigator.pushNamed(context, SubjectPage.routeName);
-    else
-      Navigator.pop(context);
-  }
-
-  void _showInSnackBar(String value) {
-    _scaffoldKey.currentState.showSnackBar(SnackBar(
-      content: Text(value),
-    ));
-  }
-
-  String _validateRequiredField(String value) {
-    _formWasEdited = true;
-    if (value.isEmpty) return 'Field is required.';
-    return null;
-  }
-
-  Future<bool> _warnUserAboutInvalidData() async {
-    final FormState form = _formKey.currentState;
-    if (form == null || !_formWasEdited || form.validate()) return true;
-
-    return await showDialog<bool>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('This form has errors'),
-              content: const Text('Really leave this form?'),
-              actions: <Widget>[
-                FlatButton(
-                  child: const Text('YES'),
-                  onPressed: () {
-                    Navigator.of(context).pop(true);
-                  },
-                ),
-                FlatButton(
-                  child: const Text('NO'),
-                  onPressed: () {
-                    Navigator.of(context).pop(false);
-                  },
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -240,5 +171,74 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
         ),
       ),
     );
+  }
+
+  void _changeColor(Color color) => setState(() => subject.color = color);
+
+  bool _saveSubject() {
+    if (!_formKey.currentState.validate()) {
+      _autoValidate = true;
+      _showInSnackBar('Please fix the errors in red before submitting.');
+      return false;
+    }
+    // form validated
+    final FormState form = _formKey.currentState;
+    form.save();
+    if (widget.isCreate) {
+      _dbService.subject.insert(subject);
+    } else {
+      _dbService.subject.update(subject);
+    }
+    return true;
+  }
+
+  void _onSubmitButtonPressed() {
+    if (!_saveSubject()) return;
+    if (widget.isCreate)
+      Navigator.pushNamed(context, SubjectPage.routeName);
+    else
+      Navigator.pop(context);
+  }
+
+  void _showInSnackBar(String value) {
+    _scaffoldKey.currentState.showSnackBar(SnackBar(
+      content: Text(value),
+    ));
+  }
+
+  String _validateRequiredField(String value) {
+    _formWasEdited = true;
+    if (value.isEmpty) return 'Field is required.';
+    return null;
+  }
+
+  Future<bool> _warnUserAboutInvalidData() async {
+    final FormState form = _formKey.currentState;
+    if (form == null || !_formWasEdited || form.validate()) return true;
+
+    return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('This form has errors'),
+              content: const Text('Really leave this form?'),
+              actions: <Widget>[
+                FlatButton(
+                  child: const Text('YES'),
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                ),
+                FlatButton(
+                  child: const Text('NO'),
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
   }
 }

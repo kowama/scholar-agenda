@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:scholar_agenda/page/agenda/agenda_page.dart';
-import 'package:scholar_agenda/page/calendar/calendar.dart';
-import 'package:scholar_agenda/page/help_and_feedback/help_and_feedback.dart';
-import 'package:scholar_agenda/page/home/home_page.dart';
-import 'package:scholar_agenda/page/settings/settings_page.dart';
-import 'package:scholar_agenda/page/subject/subject_page.dart';
-import 'package:scholar_agenda/page/timetable/timetable_page.dart';
-import 'package:scholar_agenda/service/dao.dart';
 
 import 'localization/localization.dart';
+import 'page/agenda/agenda_page.dart';
+import 'page/calendar/calendar.dart';
+import 'page/help_and_feedback/help_and_feedback.dart';
+import 'page/home/home_page.dart';
+import 'page/settings/settings_page.dart';
+import 'page/subject/subject_page.dart';
+import 'page/timetable/timetable_manage.dart';
+import 'page/timetable/timetable_page.dart';
+import 'service/dao.dart';
 
 void main() async {
-  var dbService = DbService();
-  await dbService.initialize();
+  DbService();
   runApp(ScholarAgendaApp());
 }
 
@@ -34,6 +34,7 @@ class ScholarAgendaApp extends StatelessWidget {
         AgendaPage.routeName: (context) => AgendaPage(),
         SubjectPage.routeName: (context) => SubjectPage(),
         TimetablePage.routeName: (context) => TimetablePage(),
+        TimetableManagePage.routeName: (context) => TimetableManagePage(),
         CalendarPage.routeName: (context) => CalendarPage(),
         HelpAndFeedbackPage.routeName: (context) => HelpAndFeedbackPage(),
         SettingsPage.routeName: (context) => SettingsPage(),

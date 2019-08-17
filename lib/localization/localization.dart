@@ -6,20 +6,59 @@ import 'package:intl/intl.dart';
 import 'localization_en.dart';
 
 abstract class Localization {
+  String get scholarAgenda;
+
+  String get close;
+
+  String get edit;
+
+  String get delete;
+
+  String get add;
+
+  String get action;
+
+  String get confirm;
+
+  String get cancel;
+
+  String get areYouSure;
+
+  String get calendar;
+
+  String get manageTimetable;
+
+  String get switchDisplay;
+
+  String get refresh;
+
+  String get createNewTimetable;
+
+  String get yourTimetables;
+
+  String get setAsDefault;
+
+  String get title;
+
+  String get enterATitle;
+
+  String get save;
+
+  String get editTimetable;
+
+  String get formErrorMessage;
+
+  String get pickADate;
+
+  String get pickAStartDate;
+
+  String get pickAEndDate;
+
+  String get valueIsRequired;
+
   static Localization of(BuildContext context) {
     return Localizations.of<Localization>(context, Localization);
   }
-
-  String get scholarAgenda;
-  String get close;
-  String get edit;
-  String get delete;
-  String get add;
-  String get action;
-  String get confirm;
-  String get cancel;
-  String get areYouSure;
-  String get calendar;
 }
 
 class ScholarAgendaAppLocalizationsDelegate

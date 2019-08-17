@@ -13,6 +13,28 @@ class Period {
   static const String columnTimetable = 'timetable';
   static const String columnSubject = 'subject';
 
+  static Timetable getTimeTable(int id, Database database) {
+    Timetable timetable;
+    database.query(Subject.tableName,
+        where: '${Subject.columnId} = ?',
+        whereArgs: [
+          id
+        ]).then((maps) =>
+        timetable = maps.isNotEmpty ? Timetable.fromMap(maps.first) : null);
+    return timetable;
+  }
+
+  static Subject getSubject(int id, Database database) {
+    Subject subject;
+    database.query(Subject.tableName,
+        where: '${Subject.columnId} = ?',
+        whereArgs: [
+          id
+        ]).then((maps) =>
+        subject = maps.isNotEmpty ? Subject.fromMap(maps.first) : null);
+    return subject;
+  }
+
   int id;
   DateTime start;
   DateTime end;
@@ -29,7 +51,8 @@ class Period {
       this.subject});
 
   Period.fromMap(Map<String, dynamic> map, Database database)
-      :assert(database!= null), id = map[columnId],
+      : assert(database != null),
+        id = map[columnId],
         start = DateTime.parse(map[columnStart]),
         end = DateTime.parse(map[columnEnd]),
         location = map[columnLocation],
@@ -73,10 +96,6 @@ class Period {
       '$columnLocation: $location, '
       '$columnTimetable: $timetable, '
       '$columnSubject: $subject}';
-
-  static getTimeTable(int id, Database database) {}
-
-  static getSubject(int id, Database database) {}
 }
 
 class PeriodProvider extends Provider<Period> {
@@ -99,14 +118,14 @@ class PeriodProviderConfig extends ProviderConfig<Period> {
 
   @override
   String get createTableSql => '''
-        create table ${Period.tableName} ( 
-          ${Period.columnId} integer primary key autoincrement, 
-          ${Period.columnStart} text not null,
-          ${Period.columnEnd} text not null,
-          ${Period.columnLocation} text not null,
-          ${Period.columnTimetable} integer not null,
-          ${Period.columnSubject} integer not null,
-        ''';
+        CREATE TABLE ${Period.tableName} ( 
+          ${Period.columnId} INTEGER PRIMARY KEY AUTOINCREMENT, 
+          ${Period.columnStart}  TEXT NOT NULL,
+          ${Period.columnEnd}  TEXT NOT NULL,
+          ${Period.columnLocation}  TEXT NOT NULL,
+          ${Period.columnTimetable}  INTEGER NOT NULL,
+          ${Period.columnSubject}  INTEGER NOT NULL);
+          ''';
 
   @override
   Period fromMap(Map<String, dynamic> map, {Database database}) {
