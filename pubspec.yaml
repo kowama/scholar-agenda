@@ -21,32 +21,29 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  flutter_bloc: ^0.21.0
+  moor_flutter: ^1.7.0
+  equatable: ^0.4.0
   cupertino_icons: ^0.1.2
   table_calendar: ^2.0.0
   flutter_speed_dial: ^1.2.1
   flutter_material_color_picker: ^1.0.3
-  datetime_picker_formfield: ^0.4.2
   shared_preferences: ^0.5.3
-  sqflite: ^1.1.6
+  flutter_form_builder: ^3.4.1
+  fl_chart: ^0.2.0
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  moor_generator: ^1.7.0
+  build_runner: any
 
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter.
 flutter:
 
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
 

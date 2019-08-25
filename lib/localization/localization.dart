@@ -56,6 +56,10 @@ abstract class Localization {
 
   String get valueIsRequired;
 
+  List<String> get days;
+
+  String dayOfWeek(int day);
+
   static Localization of(BuildContext context) {
     return Localizations.of<Localization>(context, Localization);
   }
@@ -89,4 +93,11 @@ class ScholarAgendaAppLocalizationsDelegate
 
   @override
   bool shouldReload(LocalizationsDelegate<Localization> old) => false;
+}
+
+class DaysOfWeek {
+  final int value;
+  final String name;
+
+  const DaysOfWeek(this.value, this.name);
 }

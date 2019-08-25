@@ -76,4 +76,21 @@ class LocalizationEN implements Localization {
 
   @override
   String get valueIsRequired => 'Please enter a value';
+
+  @override
+  List<String> get days => [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday',
+      ];
+
+  @override
+  String dayOfWeek(int day) {
+    assert(day >= 1 && day <= 7);
+    return days[day - 1];
+  }
 }

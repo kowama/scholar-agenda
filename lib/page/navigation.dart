@@ -47,16 +47,16 @@ class NavigationDrawer extends StatelessWidget {
             onTap: () => _navigateTo(context, CalendarPage.routeName),
           ),
           Divider(),
-          ListTile(
-            leading: Icon(Icons.school),
-            title: Text('Subject'),
-            onTap: () => _navigateTo(context, SubjectPage.routeName),
-          ),
-          ListTile(
-            leading: Icon(Icons.assignment),
-            title: Text('Timetable'),
-            onTap: () => _navigateTo(context, TimetablePage.routeName),
-          ),
+//          ListTile(
+//            leading: Icon(Icons.school),
+//            title: Text('Subject'),
+//            onTap: () => _navigateTo(context, SubjectPage.routeName),
+//          ),
+//          ListTile(
+//            leading: Icon(Icons.assignment),
+//            title: Text('Timetable'),
+//            onTap: () => _navigateTo(context, TimetablePage.routeName),
+//          ),
           Divider(),
           ListTile(
             leading: Icon(Icons.help),
