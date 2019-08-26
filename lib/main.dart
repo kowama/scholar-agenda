@@ -1,15 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:scholar_agenda/page/agenda/agenda_page.dart';
-import 'package:scholar_agenda/page/calendar/calendar.dart';
-import 'package:scholar_agenda/page/help_and_feedback/help_and_feedback.dart';
-import 'package:scholar_agenda/page/home/home_page.dart';
-import 'package:scholar_agenda/page/settings/settings_page.dart';
+import 'package:scholar_agenda/blocs/blocs.dart';
+import 'package:scholar_agenda/blocs/subject/bloc.dart';
+import 'package:scholar_agenda/localization/localization.dart';
+import 'package:scholar_agenda/pages/agenda/agenda_page.dart';
 
-import 'localization/localization.dart';
+import 'models/models.dart';
+import 'pages/pages.dart';
+import 'pages/subject/subject_page.dart';
 
 void main() async {
-  runApp(ScholarAgendaApp());
+  runApp(
+    Provider<SubjectBloc>(
+      builder: (context) {
+        final db = ScholarAgendaAppDb();
+        return SubjectBloc(subjectDao: db.subjectDao)
+          ..dispatch(LoadSubjectsEvent());
+      },
+      child: ScholarAgendaApp(),
+      dispose: (context, bloc) => bloc.dispose(),
+    ),
+  );
 }
 
 class ScholarAgendaApp extends StatelessWidget {
@@ -27,7 +39,7 @@ class ScholarAgendaApp extends StatelessWidget {
       home: HomePage(),
       routes: <String, WidgetBuilder>{
         AgendaPage.routeName: (context) => AgendaPage(),
-//        SubjectPage.routeName: (context) => SubjectPage(),
+        SubjectPage.routeName: (context) => SubjectPage(),
 //        TimetablePage.routeName: (context) => TimetablePage(),
 //        TimetableManagePage.routeName: (context) => TimetableManagePage(),
         CalendarPage.routeName: (context) => CalendarPage(),

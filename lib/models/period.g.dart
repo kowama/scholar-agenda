@@ -6,6 +6,6 @@ part of 'period.dart';
 // DaoGenerator
 // **************************************************************************
 
-mixin _$PeriodDaoMixin on DatabaseAccessor<AppDatabase> {
+mixin _$PeriodDaoMixin on DatabaseAccessor<ScholarAgendaAppDb> {
   $PeriodsTable get periods => db.periods;
 }

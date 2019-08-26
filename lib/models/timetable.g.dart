@@ -1,11 +1,11 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'subject.dart';
+part of 'timetable.dart';
 
 // **************************************************************************
 // DaoGenerator
 // **************************************************************************
 
-mixin _$SubjectDaoMixin on DatabaseAccessor<AppDatabase> {
-  $SubjectsTable get subjects => db.subjects;
+mixin _$TimetableDaoMixin on DatabaseAccessor<ScholarAgendaAppDb> {
+  $TimetablesTable get timetables => db.timetables;
 }

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:scholar_agenda/page/settings/settings_page.dart';
 
 import 'agenda/agenda_page.dart';
 import 'calendar/calendar.dart';
 import 'help_and_feedback/help_and_feedback.dart';
 import 'home/home_page.dart';
+import 'settings/settings_page.dart';
 import 'subject/subject_page.dart';
-import 'timetable/timetable_page.dart';
 
 class NavigationDrawer extends StatelessWidget {
   const NavigationDrawer({
@@ -47,11 +46,11 @@ class NavigationDrawer extends StatelessWidget {
             onTap: () => _navigateTo(context, CalendarPage.routeName),
           ),
           Divider(),
-//          ListTile(
-//            leading: Icon(Icons.school),
-//            title: Text('Subject'),
-//            onTap: () => _navigateTo(context, SubjectPage.routeName),
-//          ),
+          ListTile(
+            leading: Icon(Icons.school),
+            title: Text('Subject'),
+            onTap: () => _navigateTo(context, SubjectPage.routeName),
+          ),
 //          ListTile(
 //            leading: Icon(Icons.assignment),
 //            title: Text('Timetable'),

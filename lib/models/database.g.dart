@@ -7,25 +7,26 @@ part of 'database.dart';
 // **************************************************************************
 
 // ignore_for_file: unnecessary_brace_in_string_interps
-class Period extends DataClass implements Insertable<Period> {
+class PeriodDataClass extends DataClass implements Insertable<PeriodDataClass> {
   final int id;
   final int dayOfWeek;
   final DateTime start;
   final DateTime end;
   final String location;
-  Period(
+  PeriodDataClass(
       {@required this.id,
       @required this.dayOfWeek,
-      this.start,
-      this.end,
+      @required this.start,
+      @required this.end,
       this.location});
-  factory Period.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+  factory PeriodDataClass.fromData(
+      Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final dateTimeType = db.typeSystem.forDartType<DateTime>();
     final stringType = db.typeSystem.forDartType<String>();
-    return Period(
+    return PeriodDataClass(
       id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       dayOfWeek: intType
           .mapFromDatabaseResponse(data['${effectivePrefix}day_of_week']),
@@ -36,9 +37,9 @@ class Period extends DataClass implements Insertable<Period> {
           .mapFromDatabaseResponse(data['${effectivePrefix}location']),
     );
   }
-  factory Period.fromJson(Map<String, dynamic> json,
+  factory PeriodDataClass.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer = const ValueSerializer.defaults()}) {
-    return Period(
+    return PeriodDataClass(
       id: serializer.fromJson<int>(json['id']),
       dayOfWeek: serializer.fromJson<int>(json['dayOfWeek']),
       start: serializer.fromJson<DateTime>(json['start']),
@@ -59,7 +60,8 @@ class Period extends DataClass implements Insertable<Period> {
   }
 
   @override
-  T createCompanion<T extends UpdateCompanion<Period>>(bool nullToAbsent) {
+  T createCompanion<T extends UpdateCompanion<PeriodDataClass>>(
+      bool nullToAbsent) {
     return PeriodsCompanion(
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       dayOfWeek: dayOfWeek == null && nullToAbsent
@@ -74,13 +76,13 @@ class Period extends DataClass implements Insertable<Period> {
     ) as T;
   }
 
-  Period copyWith(
+  PeriodDataClass copyWith(
           {int id,
           int dayOfWeek,
           DateTime start,
           DateTime end,
           String location}) =>
-      Period(
+      PeriodDataClass(
         id: id ?? this.id,
         dayOfWeek: dayOfWeek ?? this.dayOfWeek,
         start: start ?? this.start,
@@ -89,7 +91,7 @@ class Period extends DataClass implements Insertable<Period> {
       );
   @override
   String toString() {
-    return (StringBuffer('Period(')
+    return (StringBuffer('PeriodDataClass(')
           ..write('id: $id, ')
           ..write('dayOfWeek: $dayOfWeek, ')
           ..write('start: $start, ')
@@ -107,7 +109,7 @@ class Period extends DataClass implements Insertable<Period> {
   @override
   bool operator ==(other) =>
       identical(this, other) ||
-      (other is Period &&
+      (other is PeriodDataClass &&
           other.id == id &&
           other.dayOfWeek == dayOfWeek &&
           other.start == start &&
@@ -115,7 +117,7 @@ class Period extends DataClass implements Insertable<Period> {
           other.location == location);
 }
 
-class PeriodsCompanion extends UpdateCompanion<Period> {
+class PeriodsCompanion extends UpdateCompanion<PeriodDataClass> {
   final Value<int> id;
   final Value<int> dayOfWeek;
   final Value<DateTime> start;
@@ -144,7 +146,8 @@ class PeriodsCompanion extends UpdateCompanion<Period> {
   }
 }
 
-class $PeriodsTable extends Periods with TableInfo<$PeriodsTable, Period> {
+class $PeriodsTable extends Periods
+    with TableInfo<$PeriodsTable, PeriodDataClass> {
   final GeneratedDatabase _db;
   final String _alias;
   $PeriodsTable(this._db, [this._alias]);
@@ -161,8 +164,11 @@ class $PeriodsTable extends Periods with TableInfo<$PeriodsTable, Period> {
   @override
   GeneratedIntColumn get dayOfWeek => _dayOfWeek ??= _constructDayOfWeek();
   GeneratedIntColumn _constructDayOfWeek() {
-    return GeneratedIntColumn('day_of_week', $tableName, false,
-        $customConstraints: 'field in (1, 7');
+    return GeneratedIntColumn(
+      'day_of_week',
+      $tableName,
+      false,
+    );
   }
 
   final VerificationMeta _startMeta = const VerificationMeta('start');
@@ -173,7 +179,7 @@ class $PeriodsTable extends Periods with TableInfo<$PeriodsTable, Period> {
     return GeneratedDateTimeColumn(
       'start',
       $tableName,
-      true,
+      false,
     );
   }
 
@@ -185,7 +191,7 @@ class $PeriodsTable extends Periods with TableInfo<$PeriodsTable, Period> {
     return GeneratedDateTimeColumn(
       'end',
       $tableName,
-      true,
+      false,
     );
   }
 
@@ -195,7 +201,7 @@ class $PeriodsTable extends Periods with TableInfo<$PeriodsTable, Period> {
   GeneratedTextColumn get location => _location ??= _constructLocation();
   GeneratedTextColumn _constructLocation() {
     return GeneratedTextColumn('location', $tableName, true,
-        minTextLength: 1, maxTextLength: 50);
+        minTextLength: 0, maxTextLength: 50);
   }
 
   @override
@@ -244,9 +250,9 @@ class $PeriodsTable extends Periods with TableInfo<$PeriodsTable, Period> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Period map(Map<String, dynamic> data, {String tablePrefix}) {
+  PeriodDataClass map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Period.fromData(data, _db, prefix: effectivePrefix);
+    return PeriodDataClass.fromData(data, _db, prefix: effectivePrefix);
   }
 
   @override
@@ -276,25 +282,27 @@ class $PeriodsTable extends Periods with TableInfo<$PeriodsTable, Period> {
   }
 }
 
-class Timetable extends DataClass implements Insertable<Timetable> {
+class TimetableDataClass extends DataClass
+    implements Insertable<TimetableDataClass> {
   final int id;
   final String title;
   final DateTime start;
   final DateTime end;
   final String description;
-  Timetable(
+  TimetableDataClass(
       {@required this.id,
       @required this.title,
       @required this.start,
       @required this.end,
       this.description});
-  factory Timetable.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+  factory TimetableDataClass.fromData(
+      Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
     final dateTimeType = db.typeSystem.forDartType<DateTime>();
-    return Timetable(
+    return TimetableDataClass(
       id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       title:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}title']),
@@ -305,9 +313,9 @@ class Timetable extends DataClass implements Insertable<Timetable> {
           .mapFromDatabaseResponse(data['${effectivePrefix}description']),
     );
   }
-  factory Timetable.fromJson(Map<String, dynamic> json,
+  factory TimetableDataClass.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer = const ValueSerializer.defaults()}) {
-    return Timetable(
+    return TimetableDataClass(
       id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
       start: serializer.fromJson<DateTime>(json['start']),
@@ -328,7 +336,8 @@ class Timetable extends DataClass implements Insertable<Timetable> {
   }
 
   @override
-  T createCompanion<T extends UpdateCompanion<Timetable>>(bool nullToAbsent) {
+  T createCompanion<T extends UpdateCompanion<TimetableDataClass>>(
+      bool nullToAbsent) {
     return TimetablesCompanion(
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       title:
@@ -342,13 +351,13 @@ class Timetable extends DataClass implements Insertable<Timetable> {
     ) as T;
   }
 
-  Timetable copyWith(
+  TimetableDataClass copyWith(
           {int id,
           String title,
           DateTime start,
           DateTime end,
           String description}) =>
-      Timetable(
+      TimetableDataClass(
         id: id ?? this.id,
         title: title ?? this.title,
         start: start ?? this.start,
@@ -357,7 +366,7 @@ class Timetable extends DataClass implements Insertable<Timetable> {
       );
   @override
   String toString() {
-    return (StringBuffer('Timetable(')
+    return (StringBuffer('TimetableDataClass(')
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('start: $start, ')
@@ -375,7 +384,7 @@ class Timetable extends DataClass implements Insertable<Timetable> {
   @override
   bool operator ==(other) =>
       identical(this, other) ||
-      (other is Timetable &&
+      (other is TimetableDataClass &&
           other.id == id &&
           other.title == title &&
           other.start == start &&
@@ -383,7 +392,7 @@ class Timetable extends DataClass implements Insertable<Timetable> {
           other.description == description);
 }
 
-class TimetablesCompanion extends UpdateCompanion<Timetable> {
+class TimetablesCompanion extends UpdateCompanion<TimetableDataClass> {
   final Value<int> id;
   final Value<String> title;
   final Value<DateTime> start;
@@ -413,7 +422,7 @@ class TimetablesCompanion extends UpdateCompanion<Timetable> {
 }
 
 class $TimetablesTable extends Timetables
-    with TableInfo<$TimetablesTable, Timetable> {
+    with TableInfo<$TimetablesTable, TimetableDataClass> {
   final GeneratedDatabase _db;
   final String _alias;
   $TimetablesTable(this._db, [this._alias]);
@@ -466,7 +475,7 @@ class $TimetablesTable extends Timetables
       _description ??= _constructDescription();
   GeneratedTextColumn _constructDescription() {
     return GeneratedTextColumn('description', $tableName, true,
-        minTextLength: 1, maxTextLength: 255);
+        minTextLength: 0, maxTextLength: 255);
   }
 
   @override
@@ -515,9 +524,9 @@ class $TimetablesTable extends Timetables
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Timetable map(Map<String, dynamic> data, {String tablePrefix}) {
+  TimetableDataClass map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Timetable.fromData(data, _db, prefix: effectivePrefix);
+    return TimetableDataClass.fromData(data, _db, prefix: effectivePrefix);
   }
 
   @override
@@ -547,40 +556,43 @@ class $TimetablesTable extends Timetables
   }
 }
 
-class Subject extends DataClass implements Insertable<Subject> {
+class SubjectDataClass extends DataClass
+    implements Insertable<SubjectDataClass> {
   final int id;
   final String title;
-  final int color;
+  final int colorValue;
   final String teacher;
   final String description;
-  Subject(
+  SubjectDataClass(
       {@required this.id,
       @required this.title,
-      @required this.color,
-      @required this.teacher,
-      @required this.description});
-  factory Subject.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      @required this.colorValue,
+      this.teacher,
+      this.description});
+  factory SubjectDataClass.fromData(
+      Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
-    return Subject(
+    return SubjectDataClass(
       id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       title:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}title']),
-      color: intType.mapFromDatabaseResponse(data['${effectivePrefix}color']),
+      colorValue: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}color_value']),
       teacher:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}teacher']),
       description: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}description']),
     );
   }
-  factory Subject.fromJson(Map<String, dynamic> json,
+  factory SubjectDataClass.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer = const ValueSerializer.defaults()}) {
-    return Subject(
+    return SubjectDataClass(
       id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
-      color: serializer.fromJson<int>(json['color']),
+      colorValue: serializer.fromJson<int>(json['colorValue']),
       teacher: serializer.fromJson<String>(json['teacher']),
       description: serializer.fromJson<String>(json['description']),
     );
@@ -591,20 +603,22 @@ class Subject extends DataClass implements Insertable<Subject> {
     return {
       'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
-      'color': serializer.toJson<int>(color),
+      'colorValue': serializer.toJson<int>(colorValue),
       'teacher': serializer.toJson<String>(teacher),
       'description': serializer.toJson<String>(description),
     };
   }
 
   @override
-  T createCompanion<T extends UpdateCompanion<Subject>>(bool nullToAbsent) {
+  T createCompanion<T extends UpdateCompanion<SubjectDataClass>>(
+      bool nullToAbsent) {
     return SubjectsCompanion(
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       title:
           title == null && nullToAbsent ? const Value.absent() : Value(title),
-      color:
-          color == null && nullToAbsent ? const Value.absent() : Value(color),
+      colorValue: colorValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(colorValue),
       teacher: teacher == null && nullToAbsent
           ? const Value.absent()
           : Value(teacher),
@@ -614,25 +628,25 @@ class Subject extends DataClass implements Insertable<Subject> {
     ) as T;
   }
 
-  Subject copyWith(
+  SubjectDataClass copyWith(
           {int id,
           String title,
-          int color,
+          int colorValue,
           String teacher,
           String description}) =>
-      Subject(
+      SubjectDataClass(
         id: id ?? this.id,
         title: title ?? this.title,
-        color: color ?? this.color,
+        colorValue: colorValue ?? this.colorValue,
         teacher: teacher ?? this.teacher,
         description: description ?? this.description,
       );
   @override
   String toString() {
-    return (StringBuffer('Subject(')
+    return (StringBuffer('SubjectDataClass(')
           ..write('id: $id, ')
           ..write('title: $title, ')
-          ..write('color: $color, ')
+          ..write('colorValue: $colorValue, ')
           ..write('teacher: $teacher, ')
           ..write('description: $description')
           ..write(')'))
@@ -644,49 +658,50 @@ class Subject extends DataClass implements Insertable<Subject> {
       id.hashCode,
       $mrjc(
           title.hashCode,
-          $mrjc(
-              color.hashCode, $mrjc(teacher.hashCode, description.hashCode)))));
+          $mrjc(colorValue.hashCode,
+              $mrjc(teacher.hashCode, description.hashCode)))));
   @override
   bool operator ==(other) =>
       identical(this, other) ||
-      (other is Subject &&
+      (other is SubjectDataClass &&
           other.id == id &&
           other.title == title &&
-          other.color == color &&
+          other.colorValue == colorValue &&
           other.teacher == teacher &&
           other.description == description);
 }
 
-class SubjectsCompanion extends UpdateCompanion<Subject> {
+class SubjectsCompanion extends UpdateCompanion<SubjectDataClass> {
   final Value<int> id;
   final Value<String> title;
-  final Value<int> color;
+  final Value<int> colorValue;
   final Value<String> teacher;
   final Value<String> description;
   const SubjectsCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
-    this.color = const Value.absent(),
+    this.colorValue = const Value.absent(),
     this.teacher = const Value.absent(),
     this.description = const Value.absent(),
   });
   SubjectsCompanion copyWith(
       {Value<int> id,
       Value<String> title,
-      Value<int> color,
+      Value<int> colorValue,
       Value<String> teacher,
       Value<String> description}) {
     return SubjectsCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
-      color: color ?? this.color,
+      colorValue: colorValue ?? this.colorValue,
       teacher: teacher ?? this.teacher,
       description: description ?? this.description,
     );
   }
 }
 
-class $SubjectsTable extends Subjects with TableInfo<$SubjectsTable, Subject> {
+class $SubjectsTable extends Subjects
+    with TableInfo<$SubjectsTable, SubjectDataClass> {
   final GeneratedDatabase _db;
   final String _alias;
   $SubjectsTable(this._db, [this._alias]);
@@ -707,13 +722,13 @@ class $SubjectsTable extends Subjects with TableInfo<$SubjectsTable, Subject> {
         minTextLength: 1, maxTextLength: 50);
   }
 
-  final VerificationMeta _colorMeta = const VerificationMeta('color');
-  GeneratedIntColumn _color;
+  final VerificationMeta _colorValueMeta = const VerificationMeta('colorValue');
+  GeneratedIntColumn _colorValue;
   @override
-  GeneratedIntColumn get color => _color ??= _constructColor();
-  GeneratedIntColumn _constructColor() {
+  GeneratedIntColumn get colorValue => _colorValue ??= _constructColorValue();
+  GeneratedIntColumn _constructColorValue() {
     return GeneratedIntColumn(
-      'color',
+      'color_value',
       $tableName,
       false,
     );
@@ -724,8 +739,8 @@ class $SubjectsTable extends Subjects with TableInfo<$SubjectsTable, Subject> {
   @override
   GeneratedTextColumn get teacher => _teacher ??= _constructTeacher();
   GeneratedTextColumn _constructTeacher() {
-    return GeneratedTextColumn('teacher', $tableName, false,
-        minTextLength: 1, maxTextLength: 50);
+    return GeneratedTextColumn('teacher', $tableName, true,
+        minTextLength: 0, maxTextLength: 50);
   }
 
   final VerificationMeta _descriptionMeta =
@@ -735,13 +750,13 @@ class $SubjectsTable extends Subjects with TableInfo<$SubjectsTable, Subject> {
   GeneratedTextColumn get description =>
       _description ??= _constructDescription();
   GeneratedTextColumn _constructDescription() {
-    return GeneratedTextColumn('description', $tableName, false,
-        minTextLength: 1, maxTextLength: 255);
+    return GeneratedTextColumn('description', $tableName, true,
+        minTextLength: 0, maxTextLength: 255);
   }
 
   @override
   List<GeneratedColumn> get $columns =>
-      [id, title, color, teacher, description];
+      [id, title, colorValue, teacher, description];
   @override
   $SubjectsTable get asDslTable => this;
   @override
@@ -763,11 +778,11 @@ class $SubjectsTable extends Subjects with TableInfo<$SubjectsTable, Subject> {
     } else if (title.isRequired && isInserting) {
       context.missing(_titleMeta);
     }
-    if (d.color.present) {
-      context.handle(
-          _colorMeta, color.isAcceptableValue(d.color.value, _colorMeta));
-    } else if (color.isRequired && isInserting) {
-      context.missing(_colorMeta);
+    if (d.colorValue.present) {
+      context.handle(_colorValueMeta,
+          colorValue.isAcceptableValue(d.colorValue.value, _colorValueMeta));
+    } else if (colorValue.isRequired && isInserting) {
+      context.missing(_colorValueMeta);
     }
     if (d.teacher.present) {
       context.handle(_teacherMeta,
@@ -787,9 +802,9 @@ class $SubjectsTable extends Subjects with TableInfo<$SubjectsTable, Subject> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Subject map(Map<String, dynamic> data, {String tablePrefix}) {
+  SubjectDataClass map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Subject.fromData(data, _db, prefix: effectivePrefix);
+    return SubjectDataClass.fromData(data, _db, prefix: effectivePrefix);
   }
 
   @override
@@ -801,8 +816,8 @@ class $SubjectsTable extends Subjects with TableInfo<$SubjectsTable, Subject> {
     if (d.title.present) {
       map['title'] = Variable<String, StringType>(d.title.value);
     }
-    if (d.color.present) {
-      map['color'] = Variable<int, IntType>(d.color.value);
+    if (d.colorValue.present) {
+      map['color_value'] = Variable<int, IntType>(d.colorValue.value);
     }
     if (d.teacher.present) {
       map['teacher'] = Variable<String, StringType>(d.teacher.value);
@@ -819,8 +834,9 @@ class $SubjectsTable extends Subjects with TableInfo<$SubjectsTable, Subject> {
   }
 }
 
-abstract class _$AppDatabase extends GeneratedDatabase {
-  _$AppDatabase(QueryExecutor e) : super(const SqlTypeSystem.withDefaults(), e);
+abstract class _$ScholarAgendaAppDb extends GeneratedDatabase {
+  _$ScholarAgendaAppDb(QueryExecutor e)
+      : super(const SqlTypeSystem.withDefaults(), e);
   $PeriodsTable _periods;
   $PeriodsTable get periods => _periods ??= $PeriodsTable(this);
   $TimetablesTable _timetables;
@@ -828,12 +844,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   $SubjectsTable _subjects;
   $SubjectsTable get subjects => _subjects ??= $SubjectsTable(this);
   PeriodDao _periodDao;
-  PeriodDao get periodDao => _periodDao ??= PeriodDao(this as AppDatabase);
+  PeriodDao get periodDao =>
+      _periodDao ??= PeriodDao(this as ScholarAgendaAppDb);
   TimetableDao _timetableDao;
   TimetableDao get timetableDao =>
-      _timetableDao ??= TimetableDao(this as AppDatabase);
+      _timetableDao ??= TimetableDao(this as ScholarAgendaAppDb);
   SubjectDao _subjectDao;
-  SubjectDao get subjectDao => _subjectDao ??= SubjectDao(this as AppDatabase);
+  SubjectDao get subjectDao =>
+      _subjectDao ??= SubjectDao(this as ScholarAgendaAppDb);
   @override
   List<TableInfo> get allTables => [periods, timetables, subjects];
 }

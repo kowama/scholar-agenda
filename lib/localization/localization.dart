@@ -56,7 +56,12 @@ abstract class Localization {
 
   String get valueIsRequired;
 
+  String get subject;
+
   List<String> get days;
+
+  String get subjectCreate;
+  String get subjectEdit;
 
   String dayOfWeek(int day);
 

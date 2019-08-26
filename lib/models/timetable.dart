@@ -1,8 +1,11 @@
 import 'package:moor_flutter/moor_flutter.dart';
-import 'package:scholar_agenda/model/database.dart';
+import 'package:scholar_agenda/models/models.dart';
+
+import 'database.dart';
 
 part 'timetable.g.dart';
 
+@DataClassName('TimetableDataClass')
 class Timetables extends Table {
   IntColumn get id => integer().autoIncrement()();
 
@@ -13,13 +16,13 @@ class Timetables extends Table {
   DateTimeColumn get end => dateTime()();
 
   TextColumn get description =>
-      text().withLength(min: 1, max: 255).nullable()();
+      text().nullable().withLength(min: 0, max: 255)();
 }
 
 @UseDao(tables: [Timetables])
-class TimetableDao extends DatabaseAccessor<AppDatabase>
+class TimetableDao extends DatabaseAccessor<ScholarAgendaAppDb>
     with _$TimetableDaoMixin {
-  final AppDatabase db;
+  final ScholarAgendaAppDb db;
 
   TimetableDao(this.db) : super(db);
 }

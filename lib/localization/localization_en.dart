@@ -93,4 +93,13 @@ class LocalizationEN implements Localization {
     assert(day >= 1 && day <= 7);
     return days[day - 1];
   }
+
+  @override
+  String get subject => 'Subject';
+
+  @override
+  String get subjectCreate => 'Subject create';
+
+  @override
+  String get subjectEdit => 'Subject edit';
 }
