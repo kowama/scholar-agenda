@@ -63,6 +63,8 @@ abstract class Localization {
   String get subjectCreate;
   String get subjectEdit;
 
+  String get timetable;
+
   String dayOfWeek(int day);
 
   static Localization of(BuildContext context) {

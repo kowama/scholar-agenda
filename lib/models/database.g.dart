@@ -13,12 +13,16 @@ class PeriodDataClass extends DataClass implements Insertable<PeriodDataClass> {
   final DateTime start;
   final DateTime end;
   final String location;
+  final int timetableId;
+  final int subjectId;
   PeriodDataClass(
       {@required this.id,
       @required this.dayOfWeek,
       @required this.start,
       @required this.end,
-      this.location});
+      @required this.location,
+      @required this.timetableId,
+      @required this.subjectId});
   factory PeriodDataClass.fromData(
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
@@ -35,6 +39,10 @@ class PeriodDataClass extends DataClass implements Insertable<PeriodDataClass> {
       end: dateTimeType.mapFromDatabaseResponse(data['${effectivePrefix}end']),
       location: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}location']),
+      timetableId: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}timetable_id']),
+      subjectId:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}subject_id']),
     );
   }
   factory PeriodDataClass.fromJson(Map<String, dynamic> json,
@@ -45,6 +53,8 @@ class PeriodDataClass extends DataClass implements Insertable<PeriodDataClass> {
       start: serializer.fromJson<DateTime>(json['start']),
       end: serializer.fromJson<DateTime>(json['end']),
       location: serializer.fromJson<String>(json['location']),
+      timetableId: serializer.fromJson<int>(json['timetableId']),
+      subjectId: serializer.fromJson<int>(json['subjectId']),
     );
   }
   @override
@@ -56,6 +66,8 @@ class PeriodDataClass extends DataClass implements Insertable<PeriodDataClass> {
       'start': serializer.toJson<DateTime>(start),
       'end': serializer.toJson<DateTime>(end),
       'location': serializer.toJson<String>(location),
+      'timetableId': serializer.toJson<int>(timetableId),
+      'subjectId': serializer.toJson<int>(subjectId),
     };
   }
 
@@ -73,6 +85,12 @@ class PeriodDataClass extends DataClass implements Insertable<PeriodDataClass> {
       location: location == null && nullToAbsent
           ? const Value.absent()
           : Value(location),
+      timetableId: timetableId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timetableId),
+      subjectId: subjectId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subjectId),
     ) as T;
   }
 
@@ -81,13 +99,17 @@ class PeriodDataClass extends DataClass implements Insertable<PeriodDataClass> {
           int dayOfWeek,
           DateTime start,
           DateTime end,
-          String location}) =>
+          String location,
+          int timetableId,
+          int subjectId}) =>
       PeriodDataClass(
         id: id ?? this.id,
         dayOfWeek: dayOfWeek ?? this.dayOfWeek,
         start: start ?? this.start,
         end: end ?? this.end,
         location: location ?? this.location,
+        timetableId: timetableId ?? this.timetableId,
+        subjectId: subjectId ?? this.subjectId,
       );
   @override
   String toString() {
@@ -96,7 +118,9 @@ class PeriodDataClass extends DataClass implements Insertable<PeriodDataClass> {
           ..write('dayOfWeek: $dayOfWeek, ')
           ..write('start: $start, ')
           ..write('end: $end, ')
-          ..write('location: $location')
+          ..write('location: $location, ')
+          ..write('timetableId: $timetableId, ')
+          ..write('subjectId: $subjectId')
           ..write(')'))
         .toString();
   }
@@ -104,8 +128,14 @@ class PeriodDataClass extends DataClass implements Insertable<PeriodDataClass> {
   @override
   int get hashCode => $mrjf($mrjc(
       id.hashCode,
-      $mrjc(dayOfWeek.hashCode,
-          $mrjc(start.hashCode, $mrjc(end.hashCode, location.hashCode)))));
+      $mrjc(
+          dayOfWeek.hashCode,
+          $mrjc(
+              start.hashCode,
+              $mrjc(
+                  end.hashCode,
+                  $mrjc(location.hashCode,
+                      $mrjc(timetableId.hashCode, subjectId.hashCode)))))));
   @override
   bool operator ==(other) =>
       identical(this, other) ||
@@ -114,7 +144,9 @@ class PeriodDataClass extends DataClass implements Insertable<PeriodDataClass> {
           other.dayOfWeek == dayOfWeek &&
           other.start == start &&
           other.end == end &&
-          other.location == location);
+          other.location == location &&
+          other.timetableId == timetableId &&
+          other.subjectId == subjectId);
 }
 
 class PeriodsCompanion extends UpdateCompanion<PeriodDataClass> {
@@ -123,25 +155,33 @@ class PeriodsCompanion extends UpdateCompanion<PeriodDataClass> {
   final Value<DateTime> start;
   final Value<DateTime> end;
   final Value<String> location;
+  final Value<int> timetableId;
+  final Value<int> subjectId;
   const PeriodsCompanion({
     this.id = const Value.absent(),
     this.dayOfWeek = const Value.absent(),
     this.start = const Value.absent(),
     this.end = const Value.absent(),
     this.location = const Value.absent(),
+    this.timetableId = const Value.absent(),
+    this.subjectId = const Value.absent(),
   });
   PeriodsCompanion copyWith(
       {Value<int> id,
       Value<int> dayOfWeek,
       Value<DateTime> start,
       Value<DateTime> end,
-      Value<String> location}) {
+      Value<String> location,
+      Value<int> timetableId,
+      Value<int> subjectId}) {
     return PeriodsCompanion(
       id: id ?? this.id,
       dayOfWeek: dayOfWeek ?? this.dayOfWeek,
       start: start ?? this.start,
       end: end ?? this.end,
       location: location ?? this.location,
+      timetableId: timetableId ?? this.timetableId,
+      subjectId: subjectId ?? this.subjectId,
     );
   }
 }
@@ -200,12 +240,33 @@ class $PeriodsTable extends Periods
   @override
   GeneratedTextColumn get location => _location ??= _constructLocation();
   GeneratedTextColumn _constructLocation() {
-    return GeneratedTextColumn('location', $tableName, true,
+    return GeneratedTextColumn('location', $tableName, false,
         minTextLength: 0, maxTextLength: 50);
   }
 
+  final VerificationMeta _timetableIdMeta =
+      const VerificationMeta('timetableId');
+  GeneratedIntColumn _timetableId;
   @override
-  List<GeneratedColumn> get $columns => [id, dayOfWeek, start, end, location];
+  GeneratedIntColumn get timetableId =>
+      _timetableId ??= _constructTimetableId();
+  GeneratedIntColumn _constructTimetableId() {
+    return GeneratedIntColumn('timetable_id', $tableName, false,
+        $customConstraints: 'REFERENCES timetabless(id)');
+  }
+
+  final VerificationMeta _subjectIdMeta = const VerificationMeta('subjectId');
+  GeneratedIntColumn _subjectId;
+  @override
+  GeneratedIntColumn get subjectId => _subjectId ??= _constructSubjectId();
+  GeneratedIntColumn _constructSubjectId() {
+    return GeneratedIntColumn('subject_id', $tableName, false,
+        $customConstraints: 'REFERENCES subjects(id)');
+  }
+
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, dayOfWeek, start, end, location, timetableId, subjectId];
   @override
   $PeriodsTable get asDslTable => this;
   @override
@@ -244,6 +305,18 @@ class $PeriodsTable extends Periods
     } else if (location.isRequired && isInserting) {
       context.missing(_locationMeta);
     }
+    if (d.timetableId.present) {
+      context.handle(_timetableIdMeta,
+          timetableId.isAcceptableValue(d.timetableId.value, _timetableIdMeta));
+    } else if (timetableId.isRequired && isInserting) {
+      context.missing(_timetableIdMeta);
+    }
+    if (d.subjectId.present) {
+      context.handle(_subjectIdMeta,
+          subjectId.isAcceptableValue(d.subjectId.value, _subjectIdMeta));
+    } else if (subjectId.isRequired && isInserting) {
+      context.missing(_subjectIdMeta);
+    }
     return context;
   }
 
@@ -273,6 +346,12 @@ class $PeriodsTable extends Periods
     if (d.location.present) {
       map['location'] = Variable<String, StringType>(d.location.value);
     }
+    if (d.timetableId.present) {
+      map['timetable_id'] = Variable<int, IntType>(d.timetableId.value);
+    }
+    if (d.subjectId.present) {
+      map['subject_id'] = Variable<int, IntType>(d.subjectId.value);
+    }
     return map;
   }
 
@@ -294,7 +373,7 @@ class TimetableDataClass extends DataClass
       @required this.title,
       @required this.start,
       @required this.end,
-      this.description});
+      @required this.description});
   factory TimetableDataClass.fromData(
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
@@ -474,7 +553,7 @@ class $TimetablesTable extends Timetables
   GeneratedTextColumn get description =>
       _description ??= _constructDescription();
   GeneratedTextColumn _constructDescription() {
-    return GeneratedTextColumn('description', $tableName, true,
+    return GeneratedTextColumn('description', $tableName, false,
         minTextLength: 0, maxTextLength: 255);
   }
 
@@ -567,7 +646,7 @@ class SubjectDataClass extends DataClass
       {@required this.id,
       @required this.title,
       @required this.colorValue,
-      this.teacher,
+      @required this.teacher,
       this.description});
   factory SubjectDataClass.fromData(
       Map<String, dynamic> data, GeneratedDatabase db,
@@ -739,7 +818,7 @@ class $SubjectsTable extends Subjects
   @override
   GeneratedTextColumn get teacher => _teacher ??= _constructTeacher();
   GeneratedTextColumn _constructTeacher() {
-    return GeneratedTextColumn('teacher', $tableName, true,
+    return GeneratedTextColumn('teacher', $tableName, false,
         minTextLength: 0, maxTextLength: 50);
   }
 

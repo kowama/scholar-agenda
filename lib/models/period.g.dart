@@ -8,4 +8,6 @@ part of 'period.dart';
 
 mixin _$PeriodDaoMixin on DatabaseAccessor<ScholarAgendaAppDb> {
   $PeriodsTable get periods => db.periods;
+  $TimetablesTable get timetables => db.timetables;
+  $SubjectsTable get subjects => db.subjects;
 }

@@ -1,10 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart' as material;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
-import 'package:scholar_agenda/blocs/subject/bloc.dart';
-import 'package:scholar_agenda/blocs/subject/subject_bloc.dart';
+import 'package:scholar_agenda/blocs/blocs.dart';
 import 'package:scholar_agenda/localization/localization.dart';
 import 'package:scholar_agenda/models/models.dart';
 
@@ -21,7 +19,12 @@ class SubjectFormPage extends StatefulWidget {
 
   @override
   _SubjectFormPageState createState() => _SubjectFormPageState(
-      subject: isCreate ? Subject(color: material.Colors.blue) : subject);
+        subject: isCreate
+            ? Subject(
+                color: Colors.blue,
+              )
+            : subject,
+      );
 }
 
 class _SubjectFormPageState extends State<SubjectFormPage> {
@@ -39,7 +42,6 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(subject);
     final subjectBloc = BlocProvider.of<SubjectBloc>(context);
     return Scaffold(
       key: _scaffoldKey,
@@ -67,7 +69,7 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
             child: SingleChildScrollView(
               dragStartBehavior: DragStartBehavior.down,
               padding: const EdgeInsets.symmetric(horizontal: _horizontalPad),
-              child: material.Column(
+              child: Column(
                 children: <Widget>[
                   const SizedBox(height: _verticalPad),
                   TextFormField(
@@ -199,9 +201,9 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
     final FormState form = _formKey.currentState;
     form.save();
     if (widget.isCreate) {
-      subjectBloc.dispatch(AddSubjectEvent(subject));
+      subjectBloc.dispatch(AddSubject(subject));
     } else {
-      subjectBloc.dispatch(UpdateSubjectEvent(subject));
+      subjectBloc.dispatch(UpdateSubject(subject));
     }
     return true;
   }

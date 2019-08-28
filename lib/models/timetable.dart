@@ -15,8 +15,24 @@ class Timetables extends Table {
 
   DateTimeColumn get end => dateTime()();
 
-  TextColumn get description =>
-      text().nullable().withLength(min: 0, max: 255)();
+  TextColumn get description => text().withLength(min: 0, max: 255)();
+}
+
+class Timetable extends TimetableDataClass {
+  int id;
+  String title;
+  DateTime start;
+  DateTime end;
+  String description;
+
+  Timetable({this.id, this.title, this.start, this.end, this.description});
+
+  Timetable.fromDataClass(TimetableDataClass object)
+      : id = object.id,
+        title = object.title,
+        start = object.start,
+        end = object.end,
+        description = object.description;
 }
 
 @UseDao(tables: [Timetables])
@@ -25,4 +41,16 @@ class TimetableDao extends DatabaseAccessor<ScholarAgendaAppDb>
   final ScholarAgendaAppDb db;
 
   TimetableDao(this.db) : super(db);
+
+  Future<List<Timetable>> getAllTimetables() => select(timetables).get();
+
+  Stream<List<Timetable>> watchAllTimetables() => select(timetables).watch();
+
+  Future insertTimetable(Timetable subject) => into(timetables).insert(subject);
+
+  Future updateTimetable(Timetable subject) =>
+      update(timetables).replace(subject);
+
+  Future deleteTimetable(Timetable subject) =>
+      delete(timetables).delete(subject);
 }

@@ -20,4 +20,12 @@ class ScholarAgendaAppDb extends _$ScholarAgendaAppDb {
 
   @override
   int get schemaVersion => 1;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    // Runs after all the migrations but BEFORE any queries have a chance to execute
+  beforeOpen: (db, details) async {
+  await db.customStatement('PRAGMA foreign_keys = ON');
+},
+);
 }

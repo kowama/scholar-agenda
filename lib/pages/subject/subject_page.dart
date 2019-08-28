@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:scholar_agenda/blocs/subject/bloc.dart';
-import 'package:scholar_agenda/blocs/subject/subject_bloc.dart';
+import 'package:scholar_agenda/blocs/blocs.dart';
 import 'package:scholar_agenda/localization/localization.dart';
 import 'package:scholar_agenda/models/models.dart';
 
@@ -19,12 +18,70 @@ class SubjectPage extends StatefulWidget {
 }
 
 class _SubjectPageState extends State<SubjectPage> {
+  SubjectBloc _subjectBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _subjectBloc = BlocProvider.of<SubjectBloc>(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(Localization.of(context).subject),
+      ),
+      drawer: NavigationDrawer(),
+      body: BlocBuilder<SubjectBloc, SubjectState>(builder: (context, state) {
+        if (state is SubjectsLoaded) {
+          final subjects = state.subjects;
+          return ListView(
+            shrinkWrap: true,
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+            children: List.generate(
+              subjects.length,
+              (index) {
+                return Center(
+                  child: SubjectCard(
+                    subject: subjects[index],
+                    onTap: () {
+                      _onListItemTap(context, subjects[index]);
+                    },
+                    onLongPress: () {
+                      _onListIemLongPress(context, subjects[index]);
+                    },
+                  ),
+                );
+              },
+            ),
+          );
+        } else if (state is SubjectsLoading) {
+          _subjectBloc.dispatch(LoadSubjects());
+          return Center(child: CircularProgressIndicator());
+        } else {
+          if (state is ErrorSubjectsNotLoaded) {
+            print(state.exception);
+          }
+          return Center(child: Text("error to fecth data"));
+        }
+      }),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _navigateToSubjectForm(context),
+        tooltip: Localization.of(context).action,
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+
   void _onListItemTap(BuildContext context, Subject subject) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SubjectDetailPage(subject: subject),
-      ),
+          builder: (context) => BlocProvider.value(
+                value: _subjectBloc,
+                child: SubjectDetailPage(subject: subject),
+              )),
     );
   }
 
@@ -74,7 +131,7 @@ class _SubjectPageState extends State<SubjectPage> {
                   style: TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.of(context).pop();
-                _navigateToSubjectForm(context, subject);
+                _navigateToSubjectForm(context, subject: subject);
               },
             ),
             FlatButton(
@@ -95,7 +152,6 @@ class _SubjectPageState extends State<SubjectPage> {
     showDialog(
         context: context,
         builder: (context) {
-          final subjectBloc = BlocProvider.of<SubjectBloc>(context);
           return AlertDialog(
             title: Text(Localization.of(context).areYouSure),
             content:
@@ -104,7 +160,7 @@ class _SubjectPageState extends State<SubjectPage> {
               FlatButton(
                 color: Colors.red,
                 onPressed: () {
-                  subjectBloc.dispatch(DeleteSubjectEvent(subject));
+                  _subjectBloc.dispatch(DeleteSubject(subject));
                   Navigator.of(context).pop();
                 },
                 child: Text(
@@ -126,77 +182,31 @@ class _SubjectPageState extends State<SubjectPage> {
         });
   }
 
-  void _navigateToSubjectForm(BuildContext context, Subject subject) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => SubjectFormPage(
-                  subject: subject,
-                )));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final subjectBloc = BlocProvider.of<SubjectBloc>(context);
-    return BlocBuilder<SubjectBloc, SubjectState>(
-      builder: (context, subjectState) {
-        if (subjectState is LoadedSubjectsState) {
-          final subjects = subjectState.subjects;
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(Localization.of(context).subject),
-            ),
-            drawer: NavigationDrawer(),
-            body: ListView(
-                shrinkWrap: true,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
-                children: List.generate(subjects.length, (index) {
-                  return Center(
-                    child: SubjectCard(
-                      subjectItem: subjects[index],
-                      onItemTap: () {
-                        _onListItemTap(context, subjects[index]);
-                      },
-                      onItemLongPress: () {
-                        _onListIemLongPress(context, subjects[index]);
-                      },
-                    ),
-                  );
-                })),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () => _navigateToSubjectForm(context, null),
-              tooltip: Localization.of(context).action,
-              child: Icon(Icons.add),
-            ),
-          );
-        } else {
-          subjectBloc.dispatch(LoadSubjectsEvent());
-          if (subjectState is NotLoadedSubjectsState) {
-            print(subjectState.error);
-          }
-          return Center(child: CircularProgressIndicator());
-        }
-      },
-    );
+  void _navigateToSubjectForm(BuildContext context, {Subject subject}) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return BlocProvider.value(
+        value: _subjectBloc,
+        child: SubjectFormPage(
+          subject: subject,
+        ),
+      );
+    }));
   }
 }
 
 class SubjectCard extends StatelessWidget {
   const SubjectCard(
       {Key key,
-      @required this.subjectItem,
-      @required this.onItemTap,
-      @required this.onItemLongPress,
+      @required this.subject,
+      @required this.onTap,
+      @required this.onLongPress,
       this.selected: false})
-      : assert(subjectItem != null &&
-            onItemTap != null &&
-            onItemLongPress != null),
+      : assert(subject != null && onTap != null && onLongPress != null),
         super(key: key);
 
-  final Subject subjectItem;
-  final VoidCallback onItemTap;
-  final VoidCallback onItemLongPress;
+  final Subject subject;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;
   final bool selected;
 
   @override
@@ -206,20 +216,20 @@ class SubjectCard extends StatelessWidget {
           ? Theme.of(context).selectedRowColor
           : Theme.of(context).scaffoldBackgroundColor,
       child: ListTile(
-        leading: Icon(Icons.school, color: subjectItem.color),
-        title: Text(subjectItem.title),
+        leading: Icon(Icons.school, color: subject.color),
+        title: Text(subject.title),
         subtitle: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Text(
-            subjectItem.teacher != null ? subjectItem.teacher : 'none',
+            subject.teacher,
           ),
         ),
         trailing: Icon(
           Icons.details,
-          color: subjectItem.color,
+          color: subject.color,
         ),
-        onTap: onItemTap,
-        onLongPress: onItemLongPress,
+        onTap: onTap,
+        onLongPress: onLongPress,
       ),
     );
   }

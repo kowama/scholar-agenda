@@ -102,4 +102,7 @@ class LocalizationEN implements Localization {
 
   @override
   String get subjectEdit => 'Subject edit';
+
+  @override
+  String get timetable => 'Timetable';
 }

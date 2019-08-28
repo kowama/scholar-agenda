@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart' as material;
 import 'package:moor_flutter/moor_flutter.dart';
 
+import 'dart:ui';
 import 'database.dart';
 
 part 'subject.g.dart';
@@ -13,7 +13,7 @@ class Subjects extends Table {
 
   IntColumn get colorValue => integer()();
 
-  TextColumn get teacher => text().nullable().withLength(min: 0, max: 50)();
+  TextColumn get teacher => text().withLength(min: 0, max: 50)();
 
   TextColumn get description =>
       text().nullable().withLength(min: 0, max: 255)();
@@ -23,23 +23,11 @@ class Subject extends SubjectDataClass {
   int id;
   String title;
   int colorValue;
-  material.Color _color;
+  Color _color;
   String teacher;
   String description;
 
-  set color(material.Color value) {
-    _color = value;
-    colorValue = value.value;
-  }
-
-  material.Color get color => _color;
-
-  Subject(
-      {this.id,
-      this.title,
-      material.Color color,
-      this.description,
-      this.teacher}) {
+  Subject({this.id, this.title, Color color, this.description, this.teacher}) {
     _color = color;
     colorValue = _color?.value;
   }
@@ -48,9 +36,16 @@ class Subject extends SubjectDataClass {
       : id = object.id,
         title = object.title,
         colorValue = object.colorValue,
-        _color = material.Color(object.colorValue),
+        _color = Color(object.colorValue),
         teacher = object.teacher,
         description = object.description;
+
+  Color get color => _color;
+
+  set color(Color value) {
+    _color = value;
+    colorValue = value.value;
+  }
 }
 
 @UseDao(tables: [Subjects])
