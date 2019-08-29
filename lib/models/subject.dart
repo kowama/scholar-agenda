@@ -27,7 +27,12 @@ class Subject extends SubjectDataClass {
   String teacher;
   String description;
 
-  Subject({this.id, this.title, Color color, this.description, this.teacher}) {
+  Subject(
+      {this.id,
+      this.title,
+      Color color,
+      this.description = '',
+      this.teacher = ''}) {
     _color = color;
     colorValue = _color?.value;
   }
@@ -37,8 +42,8 @@ class Subject extends SubjectDataClass {
         title = object.title,
         colorValue = object.colorValue,
         _color = Color(object.colorValue),
-        teacher = object.teacher,
-        description = object.description;
+        teacher = object.teacher ?? '',
+        description = object.description ?? '';
 
   Color get color => _color;
 

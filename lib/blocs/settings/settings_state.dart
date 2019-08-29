@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
+import 'package:scholar_agenda/models/models.dart';
 
 @immutable
 abstract class SettingsState extends Equatable {
@@ -14,12 +15,9 @@ class SettingLoading extends SettingsState {
 }
 
 class SettingsLoaded extends SettingsState {
-  SettingsLoaded() : super();
+  final Timetable defaultTimetable;
 
-  @override
-  String toString() {
-    return 'SettingsLoaded{}';
-  }
+  SettingsLoaded(this.defaultTimetable) : super([defaultTimetable]);
 }
 
 class ErrorSettingsNotLoaded extends SettingsState {

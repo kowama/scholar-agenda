@@ -105,4 +105,22 @@ class LocalizationEN implements Localization {
 
   @override
   String get timetable => 'Timetable';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get agenda => 'Agenda';
+
+  @override
+  String get helpAndFeedBack => 'Help and feedback';
+
+  @override
+  String get overview => 'Overview';
+
+  @override
+  String get errorUnableToLoadData => 'Error unable to load data';
+
+  @override
+  String get errorUnknownState => 'Error unknown state';
 }

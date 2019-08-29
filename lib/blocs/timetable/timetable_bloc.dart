@@ -42,7 +42,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           List.from((currentState as TimetablesLoaded).timetables)
             ..add(event.timetable);
       yield TimetablesLoaded(updatedTimetables);
-      timetableDao.insertTimetable(event.timetable);
+      await timetableDao.insertTimetable(event.timetable);
     }
   }
 

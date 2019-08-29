@@ -1,6 +1,9 @@
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:intl/intl.dart';
+import 'package:scholar_agenda/blocs/blocs.dart';
 import 'package:scholar_agenda/localization/localization.dart';
 import 'package:scholar_agenda/models/models.dart';
 
@@ -17,18 +20,26 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
   static final dateTimeFormatter = DateFormat("dd/MM/yyyy");
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  List<Timetable> _timetables = <Timetable>[];
   Timetable _defaultTimetable;
 
   bool _autoValidateForm = false;
+  TimetableBloc _timetableBloc;
+  Localization localization;
+
+  @override
+  void initState() {
+    super.initState();
+    _timetableBloc = BlocProvider.of<TimetableBloc>(context);
+  }
 
   @override
   Widget build(BuildContext context) {
-    _updateTimetables();
+    localization = Localization.of(context);
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(Localization.of(context).manageTimetable),
+        title: Text(localization.manageTimetable),
       ),
       body: Column(
         children: <Widget>[
@@ -39,25 +50,43 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                 _showTimetableForm();
               },
             ),
-            title: Text(Localization.of(context).createNewTimetable),
+            title: Text(localization.createNewTimetable),
           ),
           Divider(
             height: 16,
           ),
           ListTile(
-              title: Text(
-            Localization.of(context).yourTimetables,
-            style: TextStyle(
-              color: Theme.of(context).accentColor,
+            title: Text(
+              localization.yourTimetables,
+              style: TextStyle(
+                color: Theme.of(context).accentColor,
+              ),
             ),
-          )),
+          ),
           Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 4.0),
-              itemCount: _timetables.length,
-              itemBuilder: (context, index) => _buildTimetableTile(
-                  _timetables[index],
-                  isDefault: _timetables[index] == _defaultTimetable),
+            child: BlocBuilder<TimetableBloc, TimetableState>(
+              builder: (BuildContext context, TimetableState state) {
+                if (state is TimetablesLoaded) {
+                  return ListView.builder(
+                    padding: EdgeInsets.symmetric(horizontal: 4.0),
+                    itemCount: state.timetables.length,
+                    itemBuilder: (context, index) => _buildTimetableTile(
+                        state.timetables[index],
+                        isDefault:
+                            state.timetables[index] == _defaultTimetable),
+                  );
+                } else if (state is TimetablesLoading) {
+                  return Center(child: CircularProgressIndicator());
+                } else {
+                  return Center(
+                    child: Text(
+                      state is ErrorTimetablesNotLoaded
+                          ? '$state.error'
+                          : localization.errorUnknownState,
+                    ),
+                  );
+                }
+              },
             ),
           )
         ],
@@ -83,12 +112,12 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
               return AlertDialog(
                 content: Container(
                   width: double.maxFinite,
-                  height: 150,
+                  height: 180,
                   child: ListView(
                     children: <Widget>[
                       ListTile(
                         leading: Icon(Icons.check_circle),
-                        title: Text(Localization.of(context).setAsDefault),
+                        title: Text(localization.setAsDefault),
                         onTap: () {
                           Navigator.of(context).pop();
                           _setAsDefault(timetable);
@@ -96,7 +125,7 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                       ),
                       ListTile(
                         leading: Icon(Icons.edit),
-                        title: Text(Localization.of(context).edit),
+                        title: Text(localization.edit),
                         onTap: () {
                           Navigator.of(context).pop();
                           _showTimetableForm(timetable: timetable);
@@ -104,7 +133,7 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                       ),
                       ListTile(
                         leading: Icon(Icons.delete),
-                        title: Text(Localization.of(context).delete),
+                        title: Text(localization.delete),
                         onTap: () {
                           Navigator.of(context).pop();
                           _showDeleteDialog(context, timetable);
@@ -116,7 +145,7 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                 actions: <Widget>[
                   // usually buttons at the bottom of the dialog
                   new FlatButton(
-                    child: new Text(Localization.of(context).close),
+                    child: new Text(localization.close),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -130,14 +159,6 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
     );
   }
 
-  void _updateTimetables() async {
-//    var timetables = await _dbService.timetable.getAll();
-//    _defaultTimetable ??= timetables.isEmpty ? null : timetables.first;
-//    setState(() {
-//      _timetables = timetables;
-//    });
-  }
-
   void _showTimetableForm({Timetable timetable}) {
     var isCreate = timetable == null;
     timetable ??= Timetable();
@@ -147,12 +168,12 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(isCreate
-                ? Localization.of(context).createNewTimetable
-                : Localization.of(context).editTimetable),
+                ? localization.createNewTimetable
+                : localization.editTimetable),
             content: Container(
               width: double.maxFinite,
-              height: 320,
-              child: Form(
+              height: 180,
+              child: FormBuilder(
                 key: _formKey,
                 autovalidate: _autoValidateForm,
                 child: ListView(
@@ -162,12 +183,12 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                       child: TextFormField(
                         initialValue: isCreate ? '' : timetable.title,
                         decoration: InputDecoration(
-                          labelText: '${Localization.of(context).title} *',
-                          hintText: Localization.of(context).enterATitle,
+                          labelText: '${localization.title} *',
+                          hintText: localization.enterATitle,
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return Localization.of(context).valueIsRequired;
+                            return localization.valueIsRequired;
                           }
                           return null;
                         },
@@ -190,7 +211,7 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                         },
                         validator: (value) {
                           if (value == null) {
-                            return Localization.of(context).valueIsRequired;
+                            return localization.valueIsRequired;
                           }
                           return null;
                         },
@@ -198,7 +219,7 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                           timetable.start = value;
                         },
                         decoration: InputDecoration(
-                          hintText: Localization.of(context).pickAStartDate,
+                          hintText: localization.pickAStartDate,
                         ),
                       ),
                     ),
@@ -216,7 +237,7 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                         },
                         validator: (value) {
                           if (value == null) {
-                            return Localization.of(context).valueIsRequired;
+                            return localization.valueIsRequired;
                           }
                           return null;
                         },
@@ -224,25 +245,8 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                           timetable.end = value;
                         },
                         decoration: InputDecoration(
-                          hintText: Localization.of(context).pickAEndDate,
+                          hintText: localization.pickAEndDate,
                         ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: TextFormField(
-                        keyboardType: TextInputType.multiline,
-                        maxLines: 4,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText:
-                              'somme description or other details about the timetable',
-                          labelText: 'Add a note text',
-                        ),
-                        initialValue: isCreate ? '' : timetable.description,
-                        onSaved: (String value) {
-                          timetable.description = value;
-                        },
                       ),
                     ),
                   ],
@@ -252,16 +256,17 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
             actions: <Widget>[
               // usually buttons at the bottom of the dialog
               new FlatButton(
-                child: new Text(Localization.of(context).save),
-                onPressed: () async {
-                  if (await _submitForm(timetable,
-                      isCreate: isCreate,
-                      errorMessage: Localization.of(context).formErrorMessage))
-                    Navigator.of(context).pop();
+                child: new Text(localization.save),
+                onPressed: () {
+                  if (_submitForm(
+                    timetable,
+                    isCreate: isCreate,
+                    errorMessage: localization.formErrorMessage,
+                  )) Navigator.of(context).pop();
                 },
               ),
               new FlatButton(
-                child: new Text(Localization.of(context).close),
+                child: new Text(localization.close),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -271,28 +276,22 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
         });
   }
 
-  Future<bool> _submitForm(Timetable timetable,
-      {isCreate = true, String errorMessage}) async {
-//    if (!_formKey.currentState.validate()) {
-//      _autoValidateForm = true;
-//      if (errorMessage != null) _showInSnackBar(errorMessage);
-//      return false;
-//    }
-//    // form validated
-//    final FormState form = _formKey.currentState;
-//    form.save();
-//    if (isCreate) {
-//      _dbService.timetable.insert(timetable);
-//    } else {
-//      _dbService.timetable.update(timetable);
-//    }
+  bool _submitForm(Timetable timetable,
+      {isCreate = true, String errorMessage}) {
+    if (!_formKey.currentState.validate()) {
+      _autoValidateForm = true;
+      if (errorMessage != null) _showInSnackBar(errorMessage);
+      return false;
+    }
+    // form validated
+    final FormState form = _formKey.currentState;
+    form.save();
+    if (isCreate) {
+      _timetableBloc.dispatch(AddTimetable(timetable));
+    } else {
+      _timetableBloc.dispatch(UpdateTimetable(timetable));
+    }
     return true;
-  }
-
-  void _showInSnackBar(String value) {
-    _scaffoldKey.currentState.showSnackBar(SnackBar(
-      content: Text(value),
-    ));
   }
 
   void _setAsDefault(Timetable timetable) {
@@ -306,18 +305,17 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text(Localization.of(context).areYouSure),
-            content:
-                Text('${Localization.of(context).delete} ${timetable.title}'),
+            title: Text(localization.areYouSure),
+            content: Text('${localization.delete} ${timetable.title}'),
             actions: <Widget>[
               FlatButton(
                 color: Colors.red,
                 onPressed: () {
-//                  _dbService.timetable.delete(timetable.id);
+                  _timetableBloc.dispatch(DeleteTimetable(timetable));
                   Navigator.of(context).pop();
                 },
                 child: Text(
-                  Localization.of(context).delete,
+                  localization.delete,
                   style: TextStyle(color: Colors.white),
                 ),
               ),
@@ -326,12 +324,18 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                   Navigator.of(context).pop();
                 },
                 child: Text(
-                  Localization.of(context).cancel,
+                  localization.cancel,
                   style: TextStyle(color: Colors.black45),
                 ),
               )
             ],
           );
         });
+  }
+
+  void _showInSnackBar(String message) {
+    _scaffoldKey.currentState.showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 }

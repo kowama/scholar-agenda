@@ -216,9 +216,9 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
       Navigator.pop(context);
   }
 
-  void _showInSnackBar(String value) {
+  void _showInSnackBar(String message) {
     _scaffoldKey.currentState.showSnackBar(SnackBar(
-      content: Text(value),
+      content: Text(message),
     ));
   }
 

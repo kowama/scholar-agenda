@@ -61,9 +61,22 @@ abstract class Localization {
   List<String> get days;
 
   String get subjectCreate;
+
   String get subjectEdit;
 
   String get timetable;
+
+  String get settings;
+
+  String get helpAndFeedBack;
+
+  String get agenda;
+
+  String get overview;
+
+  String get errorUnableToLoadData;
+
+  String get errorUnknownState;
 
   String dayOfWeek(int day);
 

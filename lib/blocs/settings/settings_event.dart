@@ -14,10 +14,14 @@ class LoadSettings extends SettingsEvent {
   }
 }
 
-class UpdateDefaultTimetable extends SettingsEvent {
+class UpdateSettings extends SettingsEvent {
   final Timetable timetable;
 
-  UpdateDefaultTimetable(this.timetable) : super([timetable]);
+  UpdateSettings({@required this.timetable}) : super([timetable]);
+
+  UpdateSettings copyWith({Timetable timetable}) => UpdateSettings(
+        timetable: timetable ?? this.timetable,
+      );
 
   @override
   String toString() {

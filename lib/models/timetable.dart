@@ -25,14 +25,14 @@ class Timetable extends TimetableDataClass {
   DateTime end;
   String description;
 
-  Timetable({this.id, this.title, this.start, this.end, this.description});
+  Timetable({this.id, this.title, this.start, this.end, this.description = ''});
 
   Timetable.fromDataClass(TimetableDataClass object)
       : id = object.id,
         title = object.title,
         start = object.start,
         end = object.end,
-        description = object.description;
+        description = object.description ?? '';
 }
 
 @UseDao(tables: [Timetables])
@@ -42,15 +42,19 @@ class TimetableDao extends DatabaseAccessor<ScholarAgendaAppDb>
 
   TimetableDao(this.db) : super(db);
 
-  Future<List<Timetable>> getAllTimetables() => select(timetables).get();
+  Future<List<Timetable>> getAllTimetables() async {
+    final dataSet = await select(timetables).get();
+    return dataSet.map((data) => Timetable.fromDataClass(data)).toList();
+  }
 
   Stream<List<Timetable>> watchAllTimetables() => select(timetables).watch();
 
-  Future insertTimetable(Timetable subject) => into(timetables).insert(subject);
+  Future insertTimetable(Timetable timetable) =>
+      into(timetables).insert(timetable);
 
-  Future updateTimetable(Timetable subject) =>
-      update(timetables).replace(subject);
+  Future updateTimetable(Timetable timetable) =>
+      update(timetables).replace(timetable);
 
-  Future deleteTimetable(Timetable subject) =>
-      delete(timetables).delete(subject);
+  Future deleteTimetable(Timetable timetable) =>
+      delete(timetables).delete(timetable);
 }
