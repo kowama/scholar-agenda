@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
 import 'package:scholar_agenda/models/models.dart';
-import './timetable.dart';
+import './timetables.dart';
 
 class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
   final TimetableDao timetableDao;

@@ -6,17 +6,17 @@ import 'package:scholar_agenda/models/models.dart';
 import 'subjects_event.dart';
 import 'subjects_state.dart';
 
-class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
+class SubjectsBloc extends Bloc<SubjectsEvent, SubjectsState> {
   final SubjectDao subjectDao;
 
-  SubjectBloc({@required this.subjectDao}) : assert(subjectDao != null);
+  SubjectsBloc({@required this.subjectDao}) : assert(subjectDao != null);
 
   @override
-  SubjectState get initialState => SubjectsLoading();
+  SubjectsState get initialState => SubjectsLoading();
 
   @override
-  Stream<SubjectState> mapEventToState(
-    SubjectEvent event,
+  Stream<SubjectsState> mapEventToState(
+    SubjectsEvent event,
   ) async* {
     if (event is LoadSubjects) {
       yield* _mapLoadSubjectsToState();
@@ -29,7 +29,7 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
     }
   }
 
-  Stream<SubjectState> _mapLoadSubjectsToState() async* {
+  Stream<SubjectsState> _mapLoadSubjectsToState() async* {
     try {
       final subjects = await subjectDao.getAllSubjects();
       yield SubjectsLoaded(subjects);
@@ -38,7 +38,7 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
     }
   }
 
-  Stream<SubjectState> _mapAddSubjectToState(AddSubject event) async* {
+  Stream<SubjectsState> _mapAddSubjectToState(AddSubject event) async* {
     if (currentState is SubjectsLoaded) {
       final List<Subject> updatedSubjects =
           List.from((currentState as SubjectsLoaded).subjects)
@@ -48,7 +48,7 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
     }
   }
 
-  Stream<SubjectState> _mapUpdateSubjectToState(UpdateSubject event) async* {
+  Stream<SubjectsState> _mapUpdateSubjectToState(UpdateSubject event) async* {
     if (currentState is SubjectsLoaded) {
       final List<Subject> updatedSubjects =
           (currentState as SubjectsLoaded).subjects.map((subject) {
@@ -59,7 +59,7 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
     }
   }
 
-  Stream<SubjectState> _mapDeleteSubjectToState(DeleteSubject event) async* {
+  Stream<SubjectsState> _mapDeleteSubjectToState(DeleteSubject event) async* {
     if (currentState is SubjectsLoaded) {
       final updatedSubjects = (currentState as SubjectsLoaded)
           .subjects

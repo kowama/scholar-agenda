@@ -123,4 +123,19 @@ class LocalizationEN implements Localization {
 
   @override
   String get errorUnknownState => 'Error unknown state';
+
+  @override
+  String get defaultTimetableNotSet => 'Default timtable not set';
+
+  @override
+  String get pickASubject => 'Pick a subject';
+
+  @override
+  String get pickADay => 'Pick a day';
+
+  @override
+  String get createPeriod => 'Create Period';
+
+  @override
+  String get editPeriod => 'Edit Period';
 }

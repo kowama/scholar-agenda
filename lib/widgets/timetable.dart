@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:scholar_agenda/blocs/blocs.dart';
 import 'package:scholar_agenda/models/models.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class TimetableWidget extends StatefulWidget {
-  final List<Period> periods;
+  final Timetable timetable;
 
-  const TimetableWidget({Key key, @required this.periods}) : super(key: key);
+  const TimetableWidget({Key key, @required this.timetable}) : super(key: key);
 
   @override
   _TimetableWidgetState createState() => _TimetableWidgetState();
@@ -18,6 +20,7 @@ class _TimetableWidgetState extends State<TimetableWidget> {
 
   double _cellWidth;
   CalendarController _calendarController;
+  TimetablePeriodsBloc _timetablePeriodsBloc;
 
   _TimetableWidgetState();
 
@@ -25,6 +28,8 @@ class _TimetableWidgetState extends State<TimetableWidget> {
   void initState() {
     super.initState();
     _calendarController = CalendarController();
+    _timetablePeriodsBloc = BlocProvider.of<TimetablePeriodsBloc>(context);
+    _timetablePeriodsBloc.dispatch(LoadTimetablePeriods(widget.timetable));
   }
 
   @override
@@ -59,20 +64,53 @@ class _TimetableWidgetState extends State<TimetableWidget> {
   }
 
   Widget _buildGrid() {
-    return Stack(children: <Widget>[
-      CustomPaint(
-        size: Size(MediaQuery.of(context).size.width, cellHeight * rowsCount),
-        painter: TimetableBackground(
-            cellWidth: _cellWidth,
-            cellHeight: cellHeight,
-            rowsCount: rowsCount),
-        foregroundPainter: TimetableForeground(
-            periods: widget.periods,
-            cellWidth: _cellWidth,
-            cellHeight: cellHeight,
-            rowsCount: rowsCount),
-      )
-    ]);
+    return BlocBuilder<TimetablePeriodsBloc, TimetablePeriodsState>(
+        builder: (context, state) {
+      if (state is TimetablePeriodsLoaded) {
+        return CustomPaint(
+          size: Size(MediaQuery.of(context).size.width, cellHeight * rowsCount),
+          painter: TimetableBackground(
+              cellWidth: _cellWidth,
+              cellHeight: cellHeight,
+              rowsCount: rowsCount),
+          foregroundPainter: TimetableForeground(
+              periods: (state is TimetablePeriodsLoaded) ? state.periods : [],
+              cellWidth: _cellWidth,
+              cellHeight: cellHeight,
+              rowsCount: rowsCount),
+        );
+      } else {
+        if (state is TimetablePeriodsLoading) {
+          return Stack(
+            children: <Widget>[
+              CustomPaint(
+                size: Size(
+                    MediaQuery.of(context).size.width, cellHeight * rowsCount),
+                painter: TimetableBackground(
+                    cellWidth: _cellWidth,
+                    cellHeight: cellHeight,
+                    rowsCount: rowsCount),
+              ),
+              Center(
+                child: CircularProgressIndicator(),
+              )
+            ],
+          );
+        }
+        return CustomPaint(
+          size: Size(MediaQuery.of(context).size.width, cellHeight * rowsCount),
+          painter: TimetableBackground(
+              cellWidth: _cellWidth,
+              cellHeight: cellHeight,
+              rowsCount: rowsCount),
+          foregroundPainter: TimetableForeground(
+              periods: [],
+              cellWidth: _cellWidth,
+              cellHeight: cellHeight,
+              rowsCount: rowsCount),
+        );
+      }
+    });
   }
 }
 
@@ -126,25 +164,31 @@ class TimetableBackground extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
+    final old = (oldDelegate as TimetableBackground);
+    return cellWidth != old.cellWidth &&
+        cellHeight != old.cellWidth &&
+        rowsCount != old.rowsCount;
   }
 }
 
 class TimetableForeground extends CustomPainter {
+  static const columnsCount = 9;
+  static const numberOfHours = 24;
+  static const xPad = 4;
   final List<Period> periods;
   final cellHeight;
   final cellWidth;
   final rowsCount;
-  final columnsCount = 9;
-  final numberOfHours = 24;
-  final xPad = 4;
+  final maxWidth;
+
   final _paint = new Paint();
 
   TimetableForeground(
       {@required this.periods,
       @required this.cellHeight,
       @required this.cellWidth,
-      @required this.rowsCount});
+      @required this.rowsCount})
+      : maxWidth = cellWidth - xPad;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -156,7 +200,7 @@ class TimetableForeground extends CustomPainter {
           cellHeight * (p.end.difference(p.start).inMinutes.abs() / 60.0);
 
       canvas.drawRect(
-          Rect.fromLTWH(left - xPad / 2, top, cellWidth - xPad / 2, height),
+          Rect.fromLTWH(left + xPad / 2, top, cellWidth - xPad, height),
           _paint);
 
       //draw title
@@ -165,7 +209,7 @@ class TimetableForeground extends CustomPainter {
         fontSize: 14,
       );
       final textSpan = TextSpan(
-        text: 'subject',
+        text: p.subject.title,
         style: textStyle,
       );
       final textPainter = TextPainter(
@@ -174,16 +218,18 @@ class TimetableForeground extends CustomPainter {
       );
       textPainter.layout(
         minWidth: 0,
-        maxWidth: size.width,
+        maxWidth: maxWidth,
       );
-      final offset = Offset(left, top + height / 2);
+      final offset = Offset(
+          left + xPad / 2 + (maxWidth - textPainter.width) / 2,
+          top + height / 2 - textPainter.height / 2);
       textPainter.paint(canvas, offset);
     }
   }
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
+    return periods != (oldDelegate as TimetableForeground).periods;
   }
 }
 
@@ -210,6 +256,6 @@ class TimetableHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
-    return false;
+    return _content != (oldDelegate as TimetableHeaderDelegate)._content;
   }
 }

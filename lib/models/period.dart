@@ -19,7 +19,7 @@ class Periods extends Table {
   TextColumn get location => text().withLength(min: 0, max: 50)();
 
   IntColumn get timetableId =>
-      integer().customConstraint('REFERENCES timetabless(id)')();
+      integer().customConstraint('REFERENCES timetables(id)')();
 
   IntColumn get subjectId =>
       integer().customConstraint('REFERENCES subjects(id)')();
@@ -105,20 +105,33 @@ class PeriodDao extends DatabaseAccessor<ScholarAgendaAppDb>
       innerJoin(timetables, timetables.id.equalsExp(periods.timetableId)),
       innerJoin(subjects, subjects.id.equalsExp(periods.subjectId)),
     ]).get();
-    return querySet.map((row) {
-      return Period.fromDataClass(
-        row.readTable(periods),
-        timetable: Timetable.fromDataClass(row.readTable(timetables)),
-        subject: Subject.fromDataClass(row.readTable(subjects)),
-      );
-    }).toList();
+    return querySet
+        .map((row) => Period.fromDataClass(
+              row.readTable(periods),
+              timetable: Timetable.fromDataClass(row.readTable(timetables)),
+              subject: Subject.fromDataClass(row.readTable(subjects)),
+            ))
+        .toList();
   }
 
-  Stream<List<Period>> watchAllSubjects() => select(periods).watch();
+  Future<List<Period>> getAllWithTimetable(Timetable t) async {
+    final querySet =
+        await (select(periods)..where((p) => p.timetableId.equals(t.id))).join([
+      innerJoin(subjects, subjects.id.equalsExp(periods.subjectId))
+    ]).get();
 
-  Future insertPeriod(Period subject) => into(periods).insert(subject);
+    return querySet
+        .map((row) => Period.fromDataClass(
+              row.readTable(periods),
+              timetable: t,
+              subject: Subject.fromDataClass(row.readTable(subjects)),
+            ))
+        .toList();
+  }
 
-  Future updatePeriod(Period subject) => update(periods).replace(subject);
+  Future insertPeriod(Period period) => into(periods).insert(period);
 
-  Future deletePeriod(Period subject) => delete(periods).delete(subject);
+  Future updatePeriod(Period period) => update(periods).replace(period);
+
+  Future deletePeriod(Period period) => delete(periods).delete(period);
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:scholar_agenda/blocs/default_timetable/default_timetable.dart';
 
 import 'blocs/blocs.dart';
 import 'localization/localization.dart';
@@ -16,45 +15,69 @@ class ScholarAgendaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final scholarAgendaAppDb = Provider.of<ScholarAgendaAppDb>(context);
     final settingBloc = SettingsBloc()..dispatch(LoadSettings());
+    final defaultTimetableBloc = DefaultTimetableBloc(
+      settingsBloc: settingBloc,
+    );
+    final subjectBloc = SubjectsBloc(
+      subjectDao: scholarAgendaAppDb.subjectDao,
+    );
     return MaterialApp(
       title: appName,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.light,
         primaryColor: Colors.indigo,
-        accentColor: Colors.blue,
+        accentColor: Colors.indigoAccent,
         primaryColorDark: Colors.indigo[800],
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        primaryColor: Colors.indigo,
-        accentColor: Colors.blue,
-        primaryColorDark: Colors.indigo[800],
+        primaryColor: Colors.teal,
+        accentColor: Colors.tealAccent,
+        primaryColorDark: Colors.teal[800],
       ),
       home: HomePage(),
       routes: <String, WidgetBuilder>{
         AgendaPage.routeName: (context) => AgendaPage(),
-        SubjectPage.routeName: (context) => BlocProvider<SubjectBloc>(
-              builder: (context) =>
-                  SubjectBloc(subjectDao: scholarAgendaAppDb.subjectDao),
+        SubjectPage.routeName: (context) => BlocProvider<SubjectsBloc>(
+              builder: (context) => subjectBloc,
               child: SubjectPage(),
             ),
-        TimetablePage.routeName: (context) =>
-            BlocProvider<DefaultTimetableBloc>(
-              builder: (context) =>
-                  DefaultTimetableBloc(settingsBloc: settingBloc),
+        TimetablePage.routeName: (context) => MultiBlocProvider(
+              providers: [
+                BlocProvider<DefaultTimetableBloc>(
+                  builder: (context) => defaultTimetableBloc,
+                ),
+                BlocProvider<SubjectsBloc>(
+                  builder: (context) => subjectBloc,
+                ),
+                BlocProvider<TimetablePeriodsBloc>(
+                  builder: (context) => TimetablePeriodsBloc(
+                    periodDao: scholarAgendaAppDb.periodDao,
+                  ),
+                ),
+              ],
               child: TimetablePage(),
             ),
-        TimetableManagePage.routeName: (context) => BlocProvider<TimetableBloc>(
-              builder: (context) => TimetableBloc(
-                timetableDao: scholarAgendaAppDb.timetableDao,
-              ),
+        TimetableManagePage.routeName: (context) => MultiBlocProvider(
+              providers: [
+                BlocProvider<DefaultTimetableBloc>(
+                  builder: (context) => defaultTimetableBloc,
+                ),
+                BlocProvider<TimetableBloc>(
+                  builder: (context) => TimetableBloc(
+                    timetableDao: scholarAgendaAppDb.timetableDao,
+                  )..dispatch(LoadTimetables()),
+                ),
+              ],
               child: TimetableManagePage(),
             ),
         CalendarPage.routeName: (context) => CalendarPage(),
         HelpAndFeedbackPage.routeName: (context) => HelpAndFeedbackPage(),
-        SettingsPage.routeName: (context) => BlocProvider<SettingsBloc>(
-            builder: (context) => settingBloc, child: SettingsPage()),
+        SettingsPage.routeName: (context) => BlocProvider.value(
+              value: settingBloc,
+              child: SettingsPage(),
+            ),
       },
       localizationsDelegates: [
         const ScholarAgendaAppLocalizationsDelegate(),

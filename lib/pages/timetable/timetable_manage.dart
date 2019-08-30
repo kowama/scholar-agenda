@@ -1,9 +1,9 @@
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:intl/intl.dart';
 import 'package:scholar_agenda/blocs/blocs.dart';
+import 'package:scholar_agenda/blocs/default_timetable/default_timetable.dart';
 import 'package:scholar_agenda/localization/localization.dart';
 import 'package:scholar_agenda/models/models.dart';
 
@@ -19,23 +19,23 @@ class TimetableManagePage extends StatefulWidget {
 class _TimetableManagePageState extends State<TimetableManagePage> {
   static final dateTimeFormatter = DateFormat("dd/MM/yyyy");
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _formKey = GlobalKey<FormState>();
-  Timetable _defaultTimetable;
+  final _formKey = GlobalKey<FormBuilderState>();
 
   bool _autoValidateForm = false;
   TimetableBloc _timetableBloc;
+  DefaultTimetableBloc _defaultTimetableBloc;
   Localization localization;
 
   @override
   void initState() {
     super.initState();
     _timetableBloc = BlocProvider.of<TimetableBloc>(context);
+    _defaultTimetableBloc = BlocProvider.of<DefaultTimetableBloc>(context);
   }
 
   @override
   Widget build(BuildContext context) {
     localization = Localization.of(context);
-
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -71,9 +71,8 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                     padding: EdgeInsets.symmetric(horizontal: 4.0),
                     itemCount: state.timetables.length,
                     itemBuilder: (context, index) => _buildTimetableTile(
-                        state.timetables[index],
-                        isDefault:
-                            state.timetables[index] == _defaultTimetable),
+                      state.timetables[index],
+                    ),
                   );
                 } else if (state is TimetablesLoading) {
                   return Center(child: CircularProgressIndicator());
@@ -94,68 +93,74 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
     );
   }
 
-  Widget _buildTimetableTile(Timetable timetable, {bool isDefault = false}) {
-    return Card(
-      child: ListTile(
-        leading: Icon(Icons.developer_board),
-        title: Text(timetable.title),
-        subtitle: Text('${dateTimeFormatter.format(timetable.start)}'
-            '    ${dateTimeFormatter.format(timetable.end)}'),
-        trailing: Icon(isDefault
-            ? Icons.radio_button_checked
-            : Icons.radio_button_unchecked),
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              // return object of type Dialog
-              return AlertDialog(
-                content: Container(
-                  width: double.maxFinite,
-                  height: 180,
-                  child: ListView(
-                    children: <Widget>[
-                      ListTile(
-                        leading: Icon(Icons.check_circle),
-                        title: Text(localization.setAsDefault),
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          _setAsDefault(timetable);
-                        },
+  Widget _buildTimetableTile(Timetable timetable) {
+    return BlocBuilder<DefaultTimetableBloc, DefaultTimetableState>(
+      builder: (BuildContext context, DefaultTimetableState state) {
+        final isDefaultTimetable = (state is DefaultTimetableLoaded) &&
+            state.timetable.id == timetable.id;
+
+        return Card(
+          child: ListTile(
+            leading: Icon(Icons.developer_board),
+            title: Text(timetable.title),
+            subtitle: Text('${dateTimeFormatter.format(timetable.start)}'
+                '    ${dateTimeFormatter.format(timetable.end)}'),
+            trailing: Icon(isDefaultTimetable
+                ? Icons.radio_button_checked
+                : Icons.radio_button_unchecked),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    content: Container(
+                      width: double.maxFinite,
+                      height: 180,
+                      child: ListView(
+                        children: <Widget>[
+                          ListTile(
+                            leading: Icon(Icons.check_circle),
+                            title: Text(localization.setAsDefault),
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              _setAsDefault(timetable);
+                            },
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.edit),
+                            title: Text(localization.edit),
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              _showTimetableForm(timetable: timetable);
+                            },
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.delete),
+                            title: Text(localization.delete),
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              _showDeleteDialog(context, timetable);
+                            },
+                          ),
+                        ],
                       ),
-                      ListTile(
-                        leading: Icon(Icons.edit),
-                        title: Text(localization.edit),
-                        onTap: () {
+                    ),
+                    actions: <Widget>[
+                      // usually buttons at the bottom of the dialog
+                      new FlatButton(
+                        child: new Text(localization.close),
+                        onPressed: () {
                           Navigator.of(context).pop();
-                          _showTimetableForm(timetable: timetable);
-                        },
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.delete),
-                        title: Text(localization.delete),
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          _showDeleteDialog(context, timetable);
                         },
                       ),
                     ],
-                  ),
-                ),
-                actions: <Widget>[
-                  // usually buttons at the bottom of the dialog
-                  new FlatButton(
-                    child: new Text(localization.close),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
+                  );
+                },
               );
             },
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -172,7 +177,7 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                 : localization.editTimetable),
             content: Container(
               width: double.maxFinite,
-              height: 180,
+              height: 200,
               child: FormBuilder(
                 key: _formKey,
                 autovalidate: _autoValidateForm,
@@ -180,72 +185,51 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.all(4),
-                      child: TextFormField(
+                      child: FormBuilderTextField(
                         initialValue: isCreate ? '' : timetable.title,
                         decoration: InputDecoration(
                           labelText: '${localization.title} *',
+                          border: OutlineInputBorder(),
                           hintText: localization.enterATitle,
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return localization.valueIsRequired;
-                          }
-                          return null;
-                        },
-                        onSaved: (value) {
+                        validators: [FormBuilderValidators.min(1)],
+                        onChanged: (value) {
                           timetable.title = value;
                         },
+                        attribute: 'title',
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(4),
-                      child: DateTimeField(
+                      child: FormBuilderDateTimePicker(
+                        attribute: 'start',
+                        inputType: InputType.date,
                         format: dateTimeFormatter,
                         initialValue: isCreate ? null : timetable.start,
-                        onShowPicker: (context, currentValue) {
-                          return showDatePicker(
-                              context: context,
-                              firstDate: DateTime(1900),
-                              initialDate: currentValue ?? DateTime.now(),
-                              lastDate: DateTime(2100));
-                        },
-                        validator: (value) {
-                          if (value == null) {
-                            return localization.valueIsRequired;
-                          }
-                          return null;
-                        },
-                        onSaved: (value) {
+                        validators: [FormBuilderValidators.required()],
+                        onChanged: (value) {
                           timetable.start = value;
                         },
                         decoration: InputDecoration(
                           hintText: localization.pickAStartDate,
+                          border: OutlineInputBorder(),
                         ),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(4),
-                      child: DateTimeField(
+                      child: FormBuilderDateTimePicker(
+                        attribute: 'end',
                         format: dateTimeFormatter,
+                        inputType: InputType.date,
                         initialValue: isCreate ? null : timetable.end,
-                        onShowPicker: (context, currentValue) {
-                          return showDatePicker(
-                              context: context,
-                              firstDate: DateTime(1900),
-                              initialDate: currentValue ?? DateTime.now(),
-                              lastDate: DateTime(2100));
-                        },
-                        validator: (value) {
-                          if (value == null) {
-                            return localization.valueIsRequired;
-                          }
-                          return null;
-                        },
-                        onSaved: (value) {
+                        validators: [FormBuilderValidators.required()],
+                        onChanged: (value) {
                           timetable.end = value;
                         },
                         decoration: InputDecoration(
                           hintText: localization.pickAEndDate,
+                          border: OutlineInputBorder(),
                         ),
                       ),
                     ),
@@ -278,13 +262,13 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
 
   bool _submitForm(Timetable timetable,
       {isCreate = true, String errorMessage}) {
-    if (!_formKey.currentState.validate()) {
+    final form = _formKey.currentState;
+    if (!form.validate()) {
       _autoValidateForm = true;
       if (errorMessage != null) _showInSnackBar(errorMessage);
       return false;
     }
     // form validated
-    final FormState form = _formKey.currentState;
     form.save();
     if (isCreate) {
       _timetableBloc.dispatch(AddTimetable(timetable));
@@ -296,7 +280,7 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
 
   void _setAsDefault(Timetable timetable) {
     setState(() {
-      _defaultTimetable = timetable;
+      _defaultTimetableBloc.dispatch(UpdateDefaultTimetable(timetable));
     });
   }
 

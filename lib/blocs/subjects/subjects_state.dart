@@ -3,18 +3,18 @@ import 'package:meta/meta.dart';
 import 'package:scholar_agenda/models/models.dart';
 
 @immutable
-abstract class SubjectState extends Equatable {
-  SubjectState([List props = const <dynamic>[]]) : super(props);
+abstract class SubjectsState extends Equatable {
+  SubjectsState([List props = const <dynamic>[]]) : super(props);
 }
 
-class SubjectsLoading extends SubjectState {
+class SubjectsLoading extends SubjectsState {
   @override
   String toString() {
     return 'SubjectsLoading{}';
   }
 }
 
-class SubjectsLoaded extends SubjectState {
+class SubjectsLoaded extends SubjectsState {
   final List<Subject> subjects;
 
   SubjectsLoaded(this.subjects) : super([subjects]);
@@ -25,7 +25,7 @@ class SubjectsLoaded extends SubjectState {
   }
 }
 
-class ErrorSubjectsNotLoaded extends SubjectState {
+class ErrorSubjectsNotLoaded extends SubjectsState {
   final Exception exception;
 
   ErrorSubjectsNotLoaded(this.exception);

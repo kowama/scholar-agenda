@@ -252,7 +252,7 @@ class $PeriodsTable extends Periods
       _timetableId ??= _constructTimetableId();
   GeneratedIntColumn _constructTimetableId() {
     return GeneratedIntColumn('timetable_id', $tableName, false,
-        $customConstraints: 'REFERENCES timetabless(id)');
+        $customConstraints: 'REFERENCES timetables(id)');
   }
 
   final VerificationMeta _subjectIdMeta = const VerificationMeta('subjectId');

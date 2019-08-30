@@ -20,12 +20,12 @@ class SubjectDetailPage extends StatefulWidget {
 }
 
 class _SubjectDetailPageState extends State<SubjectDetailPage> {
-  SubjectBloc _subjectBloc;
+  SubjectsBloc _subjectBloc;
   bool _dialVisible = true;
 
   @override
   Widget build(BuildContext context) {
-    _subjectBloc = BlocProvider.of<SubjectBloc>(context);
+    _subjectBloc = BlocProvider.of<SubjectsBloc>(context);
     return DefaultTabController(
       length: 2,
       child: Scaffold(

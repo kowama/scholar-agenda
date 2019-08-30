@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:core' as prefix0;
+import 'dart:core';
 
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
@@ -15,7 +17,7 @@ class DefaultTimetableBloc
   DefaultTimetableBloc({@required this.settingsBloc}) {
     settingsSubscription = settingsBloc.state.listen((state) {
       if (state is SettingsLoaded) {
-        dispatch(UpdateDefaultTimetable(state.defaultTimetable));
+        dispatch(LoadDefaultTimetable());
       }
     });
   }
@@ -41,9 +43,9 @@ class DefaultTimetableBloc
   }
 
   Stream<DefaultTimetableState> _mapLoadDefaultTimetableToState() async* {
-    if (settingsBloc.state is SettingsLoaded) {
+    if (settingsBloc.currentState is SettingsLoaded) {
       final defaultTimetable =
-          (settingsBloc.state as SettingsLoaded).defaultTimetable;
+          (settingsBloc.currentState as SettingsLoaded).defaultTimetable;
       if (defaultTimetable == null) {
         yield DefaultTimetableNotSet();
       } else {
@@ -54,14 +56,11 @@ class DefaultTimetableBloc
 
   Stream<DefaultTimetableState> _mapUpdateDefaultTimetableToState(
       UpdateDefaultTimetable event) async* {
-    if (currentState is DefaultTimetableLoaded ||
-        currentState is DefaultTimetableNotSet) {
-      if (event.timetable == null) {
-        yield DefaultTimetableNotSet();
-      } else {
-        yield DefaultTimetableLoaded(event.timetable);
-        settingsBloc.dispatch(UpdateSettings(timetable: event.timetable));
-      }
+    if (event.timetable == null) {
+      yield DefaultTimetableNotSet();
+    } else {
+      yield DefaultTimetableLoaded(event.timetable);
+      settingsBloc.dispatch(UpdateSettings(timetable: event.timetable));
     }
   }
 }

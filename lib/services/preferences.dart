@@ -12,7 +12,9 @@ class Preferences {
   static SharedPreferences _sharedPreferences;
 
   static Future initialize() async {
-    _sharedPreferences = await SharedPreferences.getInstance();
+    if (_sharedPreferences == null) {
+      _sharedPreferences = await SharedPreferences.getInstance();
+    }
   }
 
   factory Preferences() {
@@ -22,17 +24,20 @@ class Preferences {
   Preferences._internal();
 
   Future<bool> updateDefaultTimetable(Timetable timetable) async {
-    assert(_sharedPreferences != null);
+    assert(_sharedPreferences != null, 'must be iniitialize before call');
 
     return await _sharedPreferences.setString(
         DEFAULT_TIMETABLE, json.encode(timetable));
   }
 
   Future<Timetable> getDefaultTimetable() async {
-    assert(_sharedPreferences != null);
-    final subject = Timetable.fromDataClass(TimetableDataClass.fromJson(
-      json.decode(_sharedPreferences.getString(DEFAULT_TIMETABLE)),
-    ));
-    return subject;
+    assert(_sharedPreferences != null, 'must be iniitialize before call');
+
+    final jsonString = _sharedPreferences.getString(DEFAULT_TIMETABLE);
+    return jsonString == null
+        ? null
+        : Timetable.fromDataClass(TimetableDataClass.fromJson(
+            json.decode(jsonString),
+          ));
   }
 }

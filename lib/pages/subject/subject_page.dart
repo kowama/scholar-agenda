@@ -18,12 +18,13 @@ class SubjectPage extends StatefulWidget {
 }
 
 class _SubjectPageState extends State<SubjectPage> {
-  SubjectBloc _subjectBloc;
+  SubjectsBloc _subjectsBloc;
 
   @override
   void initState() {
     super.initState();
-    _subjectBloc = BlocProvider.of<SubjectBloc>(context);
+    _subjectsBloc = BlocProvider.of<SubjectsBloc>(context);
+    _subjectsBloc.dispatch(LoadSubjects());
   }
 
   @override
@@ -33,7 +34,7 @@ class _SubjectPageState extends State<SubjectPage> {
         title: Text(Localization.of(context).subject),
       ),
       drawer: NavigationDrawer(),
-      body: BlocBuilder<SubjectBloc, SubjectState>(builder: (context, state) {
+      body: BlocBuilder<SubjectsBloc, SubjectsState>(builder: (context, state) {
         if (state is SubjectsLoaded) {
           final subjects = state.subjects;
           return ListView(
@@ -57,7 +58,7 @@ class _SubjectPageState extends State<SubjectPage> {
             ),
           );
         } else if (state is SubjectsLoading) {
-          _subjectBloc.dispatch(LoadSubjects());
+          _subjectsBloc.dispatch(LoadSubjects());
           return Center(child: CircularProgressIndicator());
         } else {
           if (state is ErrorSubjectsNotLoaded) {
@@ -79,7 +80,7 @@ class _SubjectPageState extends State<SubjectPage> {
       context,
       MaterialPageRoute(
           builder: (context) => BlocProvider.value(
-                value: _subjectBloc,
+                value: _subjectsBloc,
                 child: SubjectDetailPage(subject: subject),
               )),
     );
@@ -160,7 +161,7 @@ class _SubjectPageState extends State<SubjectPage> {
               FlatButton(
                 color: Colors.red,
                 onPressed: () {
-                  _subjectBloc.dispatch(DeleteSubject(subject));
+                  _subjectsBloc.dispatch(DeleteSubject(subject));
                   Navigator.of(context).pop();
                 },
                 child: Text(
@@ -185,7 +186,7 @@ class _SubjectPageState extends State<SubjectPage> {
   void _navigateToSubjectForm(BuildContext context, {Subject subject}) {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return BlocProvider.value(
-        value: _subjectBloc,
+        value: _subjectsBloc,
         child: SubjectFormPage(
           subject: subject,
         ),

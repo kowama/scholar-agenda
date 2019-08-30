@@ -42,7 +42,7 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    final subjectBloc = BlocProvider.of<SubjectBloc>(context);
+    final subjectBloc = BlocProvider.of<SubjectsBloc>(context);
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -191,7 +191,7 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
 
   void _changeColor(Color color) => setState(() => subject.color = color);
 
-  bool _saveSubject(SubjectBloc subjectBloc) {
+  bool _saveSubject(SubjectsBloc subjectBloc) {
     if (!_formKey.currentState.validate()) {
       _autoValidate = true;
       _showInSnackBar('Please fix the errors in red before submitting.');
@@ -208,7 +208,7 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
     return true;
   }
 
-  void _onSubmitButtonPressed(SubjectBloc subjectBloc) {
+  void _onSubmitButtonPressed(SubjectsBloc subjectBloc) {
     if (!_saveSubject(subjectBloc)) return;
     if (widget.isCreate)
       Navigator.pushNamed(context, SubjectPage.routeName);

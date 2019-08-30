@@ -1,21 +1,23 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:intl/intl.dart';
+import 'package:scholar_agenda/blocs/blocs.dart';
 import 'package:scholar_agenda/localization/localization.dart';
 import 'package:scholar_agenda/models/models.dart';
+
+import 'timetable_page.dart';
 
 class PeriodFormPage extends StatefulWidget {
   static const routeName = "/timetable/period/form";
 
-  final String title;
   final Period period;
   final bool isCreate;
   final Timetable timetable;
 
   PeriodFormPage({Key key, @required this.timetable, this.period})
       : isCreate = period == null,
-        title = period == null ? 'Period Create' : 'Period Edit',
         super(key: key);
 
   @override
@@ -30,6 +32,8 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormBuilderState>();
+  TimetablePeriodsBloc _timetablePeriodsBloc;
+  SubjectsBloc _subjectsBloc;
 
   Period period;
   List<Subject> subjects;
@@ -39,11 +43,22 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
   _PeriodFormPageState({this.subjects, this.period}) : assert(period != null);
 
   @override
+  void initState() {
+    super.initState();
+    _timetablePeriodsBloc = BlocProvider.of<TimetablePeriodsBloc>(context);
+    _subjectsBloc = BlocProvider.of<SubjectsBloc>(context);
+    _subjectsBloc..dispatch(LoadSubjects());
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final localization = Localization.of(context);
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.isCreate
+            ? localization.createPeriod
+            : localization.editPeriod),
         backgroundColor: Colors.indigo,
         actions: <Widget>[
           IconButton(icon: Icon(Icons.save), onPressed: _onSubmitButtonPressed)
@@ -63,44 +78,46 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
               child: Column(
                 children: [
                   const SizedBox(height: _verticalPad),
-//                  FutureBuilder<List<Subjects>>(
-//                      future: subjects,
-//                      builder: (context, snapshot) {
-//                        if (snapshot.hasData) {
-//                          return FormBuilderDropdown(
-//                            attribute: "subject",
-//                            decoration: InputDecoration(
-//                              labelText: "Subject",
-//                              border: OutlineInputBorder(),
-//                            ),
-//                            hint: Text('Pick a subject'),
-//                            validators: [FormBuilderValidators.required()],
-//                            items: snapshot.data
-//                                .map((subject) => DropdownMenuItem(
-//                                      value: subject,
-//                                      child: Row(
-//                                          mainAxisAlignment:
-//                                              MainAxisAlignment.spaceBetween,
-//                                          children: <Widget>[
-//                                            Text(subject.title),
-//                                            CircleAvatar(
-//                                              radius: 4,
-//                                              backgroundColor: subject.color,
-//                                            )
-//                                          ]),
-//                                    ))
-//                                .toList(),
-//                            onChanged: (value) {
-//                              period.subject = value;
-//                            },
-//                          );
-//                        } else if (snapshot.hasError) {
-//                          return Text("${snapshot.error}");
-//                        }
-//
-//                        // By default, show a loading spinner.
-//                        return CircularProgressIndicator();
-//                      }),
+                  BlocBuilder<SubjectsBloc, SubjectsState>(
+                    builder: (context, state) {
+                      if (state is SubjectsLoaded) {
+                        return FormBuilderDropdown(
+                          attribute: "subject",
+                          decoration: InputDecoration(
+                            labelText: "Subject",
+                            border: OutlineInputBorder(),
+                          ),
+                          hint: Text(localization.pickASubject),
+                          validators: [FormBuilderValidators.required()],
+                          items: state.subjects
+                              .map((subject) => DropdownMenuItem(
+                                    value: subject,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Text(subject.title),
+                                        CircleAvatar(
+                                          radius: 4,
+                                          backgroundColor: subject.color,
+                                        )
+                                      ],
+                                    ),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            period.subject = value;
+                          },
+                        );
+                      } else {
+                        return Center(
+                          child: (state is SubjectsLoading)
+                              ? CircularProgressIndicator()
+                              : Text(localization.errorUnableToLoadData),
+                        );
+                      }
+                    },
+                  ),
                   const SizedBox(height: _verticalPad),
                   FormBuilderDropdown(
                     attribute: "day",
@@ -108,7 +125,7 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
                       labelText: "Day",
                       border: OutlineInputBorder(),
                     ),
-                    hint: Text('Pick a day'),
+                    hint: Text(localization.pickADay),
                     validators: [FormBuilderValidators.required()],
                     items: List.generate(7, (index) => ++index)
                         .map((day) => DropdownMenuItem(
@@ -123,7 +140,7 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
                   ),
                   const SizedBox(height: _verticalPad),
                   FormBuilderDateTimePicker(
-                    attribute: "sart",
+                    attribute: "Start",
                     inputType: InputType.time,
                     format: DateFormat("HH:mm"),
                     decoration: InputDecoration(
@@ -189,32 +206,29 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
   }
 
   bool _savePeriod() {
-//    if (!formKey.currentState.validate()) {
-//      _autoValidate = true;
-//      _showInSnackBar('Please fix the errors in red before submitting.');
-//      return false;
-//    }
-//    // form validated
-//    final form = formKey.currentState;
-//    print(widget.timetable);
-//    period.timetable = widget.timetable;
-//    form.save();
-//    print(period);
-//    if (widget.isCreate) {
-//      dbService.period.insert(period);
-//    } else {
-//      dbService.period.update(period);
-//    }
+    if (!formKey.currentState.validate()) {
+      _autoValidate = true;
+      _showInSnackBar('Please fix the errors in red before submitting.');
+      return false;
+    }
+    // form validated
+    final form = formKey.currentState;
+    period.timetable = widget.timetable;
+    form.save();
+    if (widget.isCreate) {
+      _timetablePeriodsBloc.dispatch(AddPeriod(period));
+    } else {
+      _timetablePeriodsBloc.dispatch(UpdatePeriod(period));
+    }
     return true;
   }
 
   void _onSubmitButtonPressed() {
-//    print(period);
-//    if (!_savePeriod()) return;
-//    if (widget.isCreate)
-//      Navigator.pushNamed(context, TimetablePage.routeName);
-//    else
-//      Navigator.pop(context);
+    if (!_savePeriod()) return;
+    if (widget.isCreate)
+      Navigator.pushNamed(context, TimetablePage.routeName);
+    else
+      Navigator.pop(context);
   }
 
   void _showInSnackBar(String value) {

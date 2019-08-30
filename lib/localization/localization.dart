@@ -78,6 +78,16 @@ abstract class Localization {
 
   String get errorUnknownState;
 
+  String get defaultTimetableNotSet;
+
+  String get pickASubject;
+
+  String get pickADay;
+
+  String get createPeriod;
+
+  String get editPeriod;
+
   String dayOfWeek(int day);
 
   static Localization of(BuildContext context) {

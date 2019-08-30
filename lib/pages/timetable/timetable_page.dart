@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:scholar_agenda/blocs/blocs.dart';
 import 'package:scholar_agenda/localization/localization.dart';
-import 'package:scholar_agenda/models/models.dart';
+import 'package:scholar_agenda/widgets/timetable.dart';
 
 import '../navigation.dart';
 import 'period_form.dart';
@@ -17,66 +19,88 @@ class TimetablePage extends StatefulWidget {
 }
 
 class _TimetablePageState extends State<TimetablePage> {
-  final Future<Timetable> defaultTimetable;
+  DefaultTimetableBloc _defaultTimetableBloc;
+  TimetablePeriodsBloc _timetablePeriodsBloc;
+  SubjectsBloc _subjectsBloc;
 
-  _TimetablePageState({this.defaultTimetable});
+  _TimetablePageState();
+
+  @override
+  void initState() {
+    super.initState();
+    _defaultTimetableBloc = BlocProvider.of<DefaultTimetableBloc>(context);
+    _timetablePeriodsBloc = BlocProvider.of<TimetablePeriodsBloc>(context);
+    _subjectsBloc = BlocProvider.of<SubjectsBloc>(context);
+    _defaultTimetableBloc..dispatch(LoadDefaultTimetable());
+  }
 
   @override
   Widget build(BuildContext context) {
-    var choices = _buildChoices(context);
+    final theme = Theme.of(context);
+    final localization = Localization.of(context);
+    final choices = _buildChoices(context);
     return Scaffold(
-        appBar: AppBar(
-          title: Text(Localization.of(context).timetable),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(choices[0].icon),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(choices[1].icon),
-              onPressed: () {},
-            ),
-            PopupMenuButton<Choice>(
-              onSelected: (choice) {
-                choice.onSelected();
-              },
-              itemBuilder: (BuildContext context) {
-                return choices.skip(2).map((Choice choice) {
-                  return PopupMenuItem<Choice>(
-                    value: choice,
-                    child: Text(choice.title),
-                  );
-                }).toList();
-              },
-            ),
-          ],
-        ),
-        drawer: new NavigationDrawer(),
-        body: Container(),
-//        body: FutureBuilder<List<Period>>(
-//          future: _timeTablesPeriod(),
-//          builder: (context, snapshot) {
-//            if (snapshot.hasData) {
-//              return TimetableWidget(periods: snapshot.data);
-//            } else if (snapshot.hasError) {
-//              return Text("${snapshot.error}");
-//            }
-//
-//            // By default, show a loading spinner.
-//            return CircularProgressIndicator();
-//          },
-//        ),
-        floatingActionButton: _buildSpeedDial(context));
+      appBar: AppBar(
+        title: Text(Localization.of(context).timetable),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(choices[0].icon),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: Icon(choices[1].icon),
+            onPressed: () {},
+          ),
+          PopupMenuButton<Choice>(
+            onSelected: (choice) {
+              choice.onSelected();
+            },
+            itemBuilder: (BuildContext context) {
+              return choices.skip(2).map((Choice choice) {
+                return PopupMenuItem<Choice>(
+                  value: choice,
+                  child: Text(choice.title),
+                );
+              }).toList();
+            },
+          ),
+        ],
+      ),
+      drawer: new NavigationDrawer(),
+      body: BlocBuilder<DefaultTimetableBloc, DefaultTimetableState>(
+        builder: (context, state) {
+          if (state is DefaultTimetableLoaded) {
+            return BlocProvider.value(
+              value: _timetablePeriodsBloc,
+              child: TimetableWidget(
+                timetable: state.timetable,
+              ),
+            );
+          } else if (state is DefaultTimetableNotSet) {
+            return Center(
+                child: Text(
+              localization.defaultTimetableNotSet,
+              style: theme.textTheme.title,
+            ));
+          } else if (state is DefaultTimetableLoading) {
+            return Center(child: CircularProgressIndicator());
+          } else {
+            return Text(localization.errorUnknownState);
+          }
+        },
+      ),
+      floatingActionButton:
+          BlocBuilder<DefaultTimetableBloc, DefaultTimetableState>(
+              builder: _buildSpeedDial),
+    );
   }
 
-  SpeedDial _buildSpeedDial(BuildContext context) {
+  SpeedDial _buildSpeedDial(BuildContext context, DefaultTimetableState state) {
     return SpeedDial(
       animatedIcon: AnimatedIcons.menu_close,
       animatedIconTheme: IconThemeData(size: 22.0),
       overlayColor: Colors.black,
       overlayOpacity: .5,
-      onOpen: () => print('OPENING DIAL'),
-      onClose: () => print('DIAL CLOSED'),
       tooltip: 'Speed Dial',
       heroTag: 'speed-dial-hero-tag',
       foregroundColor: Colors.white,
@@ -88,7 +112,7 @@ class _TimetablePageState extends State<TimetablePage> {
           label: 'Second',
           labelBackgroundColor: Colors.black54,
           labelStyle: TextStyle(fontSize: 18.0, color: Colors.white),
-          onTap: () => print('SECOND CHILD'),
+          onTap: () {},
         ),
         SpeedDialChild(
           child: Icon(Icons.keyboard_voice),
@@ -96,10 +120,7 @@ class _TimetablePageState extends State<TimetablePage> {
           label: 'Third',
           labelBackgroundColor: Colors.black54,
           labelStyle: TextStyle(fontSize: 18.0, color: Colors.white),
-          onTap: () async {
-//            var t = await dbService.period.getAll();
-//            print(t);
-          },
+          onTap: () {},
         ),
         SpeedDialChild(
             child: Icon(Icons.add),
@@ -107,18 +128,28 @@ class _TimetablePageState extends State<TimetablePage> {
             label: 'Add',
             labelBackgroundColor: Colors.black54,
             labelStyle: TextStyle(fontSize: 18.0, color: Colors.white),
-            onTap: () async {
-              var timetable = await defaultTimetable;
+            onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => PeriodFormPage(
-                        timetable: timetable,
-                      )));
+                builder: (context) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider<TimetablePeriodsBloc>(
+                      builder: (context) => _timetablePeriodsBloc,
+                    ),
+                    BlocProvider<SubjectsBloc>(
+                      builder: (context) => _subjectsBloc,
+                    )
+                  ],
+                  child: PeriodFormPage(
+                    timetable: (state as DefaultTimetableLoaded).timetable,
+                  ),
+                ),
+              ));
             }),
       ],
     );
   }
 
-  static List<Choice> _buildChoices(BuildContext context) {
+  List<Choice> _buildChoices(BuildContext context) {
     return <Choice>[
       Choice(
           title: Localization.of(context).switchDisplay,

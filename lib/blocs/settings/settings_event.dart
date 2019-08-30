@@ -10,7 +10,7 @@ abstract class SettingsEvent extends Equatable {
 class LoadSettings extends SettingsEvent {
   @override
   String toString() {
-    return 'LoadDefaultSettings{}';
+    return 'LoadSettings{}';
   }
 }
 
@@ -25,6 +25,6 @@ class UpdateSettings extends SettingsEvent {
 
   @override
   String toString() {
-    return 'UpdateDefaultTimetable{timetable: $timetable}';
+    return 'UpdateSettings{timetable: $timetable}';
   }
 }
