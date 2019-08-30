@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:scholar_agenda/blocs/blocs.dart';
+import 'package:scholar_agenda/blocs/timetable_page_tab/timetable_page_tab.dart';
+import 'package:scholar_agenda/blocs/timetable_page_tab/timetable_page_tab_state.dart';
+import 'package:scholar_agenda/localization/localization.dart';
 import 'package:scholar_agenda/models/models.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class TimetableWidget extends StatefulWidget {
   final Timetable timetable;
+  final TimetablePageTab timetablePageTab;
 
-  const TimetableWidget({Key key, @required this.timetable}) : super(key: key);
+  const TimetableWidget(
+      {Key key,
+      @required this.timetable,
+      this.timetablePageTab = TimetablePageTab.weekView})
+      : super(key: key);
 
   @override
   _TimetableWidgetState createState() => _TimetableWidgetState();
@@ -16,11 +25,11 @@ class TimetableWidget extends StatefulWidget {
 class _TimetableWidgetState extends State<TimetableWidget> {
   static const cellHeight = 50.0;
   static const numDayOfWeek = 7;
-  static const rowsCount = 24.5;
+  static const rowsCount = 25.5;
 
-  double _cellWidth;
   CalendarController _calendarController;
   TimetablePeriodsBloc _timetablePeriodsBloc;
+  Localization localization;
 
   _TimetableWidgetState();
 
@@ -40,7 +49,16 @@ class _TimetableWidgetState extends State<TimetableWidget> {
 
   @override
   Widget build(BuildContext context) {
-    _cellWidth = MediaQuery.of(context).size.width / (numDayOfWeek + 1);
+    localization = Localization.of(context);
+    if (widget.timetablePageTab == TimetablePageTab.weekView)
+      return _buildWeekView(context);
+    else {
+      return _buildDayListView(context);
+    }
+  }
+
+  Widget _buildWeekView(BuildContext context) {
+    final cellWidth = MediaQuery.of(context).size.width / (numDayOfWeek + 1);
     return CustomScrollView(
       slivers: <Widget>[
         SliverPersistentHeader(
@@ -52,30 +70,30 @@ class _TimetableWidgetState extends State<TimetableWidget> {
                 initialCalendarFormat: CalendarFormat.week,
                 availableCalendarFormats: {CalendarFormat.week: 'Week'},
               ),
-              _cellWidth),
+              cellWidth),
           pinned: true,
           floating: true,
         ),
         SliverToBoxAdapter(
-          child: _buildGrid(),
+          child: _buildGrid(cellWidth: cellWidth),
         ),
       ],
     );
   }
 
-  Widget _buildGrid() {
+  Widget _buildGrid({double cellWidth}) {
     return BlocBuilder<TimetablePeriodsBloc, TimetablePeriodsState>(
         builder: (context, state) {
       if (state is TimetablePeriodsLoaded) {
         return CustomPaint(
           size: Size(MediaQuery.of(context).size.width, cellHeight * rowsCount),
           painter: TimetableBackground(
-              cellWidth: _cellWidth,
+              cellWidth: cellWidth,
               cellHeight: cellHeight,
               rowsCount: rowsCount),
           foregroundPainter: TimetableForeground(
               periods: (state is TimetablePeriodsLoaded) ? state.periods : [],
-              cellWidth: _cellWidth,
+              cellWidth: cellWidth,
               cellHeight: cellHeight,
               rowsCount: rowsCount),
         );
@@ -87,7 +105,7 @@ class _TimetableWidgetState extends State<TimetableWidget> {
                 size: Size(
                     MediaQuery.of(context).size.width, cellHeight * rowsCount),
                 painter: TimetableBackground(
-                    cellWidth: _cellWidth,
+                    cellWidth: cellWidth,
                     cellHeight: cellHeight,
                     rowsCount: rowsCount),
               ),
@@ -100,17 +118,43 @@ class _TimetableWidgetState extends State<TimetableWidget> {
         return CustomPaint(
           size: Size(MediaQuery.of(context).size.width, cellHeight * rowsCount),
           painter: TimetableBackground(
-              cellWidth: _cellWidth,
-              cellHeight: cellHeight,
+              cellWidth: cellWidth,
+              cellHeight: cellWidth,
               rowsCount: rowsCount),
           foregroundPainter: TimetableForeground(
               periods: [],
-              cellWidth: _cellWidth,
+              cellWidth: cellWidth,
               cellHeight: cellHeight,
               rowsCount: rowsCount),
         );
       }
     });
+  }
+
+  Widget _buildDayListView(BuildContext context) {
+    return CustomScrollView(
+      slivers: <Widget>[
+        SliverToBoxAdapter(
+          child: _buildList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildList() {
+    return BlocBuilder<TimetablePeriodsBloc, TimetablePeriodsState>(
+      builder: (context, state) {
+        if (state is TimetablePeriodsLoaded) {
+          return DaysTaskView(
+            periods: state.periods,
+          );
+        } else if (state is TimetablePeriodsLoading) {
+          return Center(child: CircularProgressIndicator());
+        } else {
+          return Text(localization.errorUnableToLoadData);
+        }
+      },
+    );
   }
 }
 
@@ -194,9 +238,9 @@ class TimetableForeground extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     for (var p in periods) {
       _paint.color = p.subject.color;
-      var left = (p.dayOfWeek) * cellWidth;
-      var top = (0.5 + p.start.minute / 60.0) * cellHeight;
-      var height =
+      final left = (p.dayOfWeek) * cellWidth;
+      final top = (0.5 + (p.start.hour + p.start.minute / 60)) * cellHeight;
+      final height =
           cellHeight * (p.end.difference(p.start).inMinutes.abs() / 60.0);
 
       canvas.drawRect(
@@ -258,4 +302,143 @@ class TimetableHeaderDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
     return _content != (oldDelegate as TimetableHeaderDelegate)._content;
   }
+}
+
+class DaysTaskView extends StatelessWidget {
+  static List<DayWithPeriod> groupPeriodsByDay(final List<Period> periods) {
+    return List.generate(
+      7,
+      (i) => DayWithPeriod(
+        day: (i + 1),
+        periods: periods.where((p) => p.dayOfWeek == (i + 1)).toList()
+          ..sort((p1, p2) => p1.start.hour - p2.start.hour)
+          ..sort((p1, p2) => p1.start.minute - p2.start.minute),
+      ),
+    );
+  }
+
+  static final timeFormat = intl.DateFormat.Hm();
+
+  final List<Period> periods;
+  final List<DayWithPeriod> days;
+
+  DaysTaskView({Key key, @required this.periods})
+      : days = groupPeriodsByDay(periods),
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final localization = Localization.of(context);
+    final ThemeData themeData = Theme.of(context);
+
+    final daysView = days.map((day) {
+      final periods = day.periods;
+      final periodsView = periods
+          .map(
+            (period) => Card(
+              child: ListTile(
+                title: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      '${timeFormat.format(period.start)}'
+                      ' - ${timeFormat.format(period.end)}',
+                      style: themeData.textTheme.caption,
+                    ),
+                    Text(
+                      period.subject.title,
+                      style: themeData.textTheme.title
+                          .copyWith(color: period.subject.color),
+                    ),
+                  ],
+                ),
+                subtitle: Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.room,
+                      size: 12,
+                    ),
+                    Text(period.location)
+                  ],
+                ),
+                trailing: Container(
+                  width: 10,
+                  color: period.subject.color,
+                ),
+                isThreeLine: true,
+                onTap: () {
+                  _onPeriodTap(context, period);
+                },
+              ),
+            ),
+          )
+          .toList();
+      return Column(
+          children: <Widget>[
+        ListTile(
+          title: Text(
+            localization.dayOfWeek(day.day),
+            style: themeData.textTheme.headline,
+          ),
+          subtitle: Row(children: <Widget>[
+            Text(
+              localization.youHave,
+              style: themeData.textTheme.subtitle,
+            ),
+            Text(
+              ' ${day.periods.length} ${localization.classes}',
+              style: themeData.textTheme.subhead
+                  .copyWith(color: themeData.accentColor),
+            )
+          ]),
+        ),
+      ]
+            ..addAll(periodsView)
+            ..add(Divider(
+              height: 10,
+            )));
+    }).toList();
+
+    return Column(children: daysView);
+  }
+
+  void _onPeriodTap(BuildContext context, Period period) {
+    final localization = Localization.of(context);
+    final ThemeData themeData = Theme.of(context);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: ListTile(
+            isThreeLine: true,
+            title: Text(
+              period.subject.title,
+              style: themeData.textTheme.title,
+            ),
+            subtitle: Text(localization.dayOfWeek(period.dayOfWeek)),
+            trailing: Text('google'),
+          ),
+          content: Text("Alert Dialog body"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text(localization.close),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class DayWithPeriod {
+  final int day;
+  final List<Period> periods;
+
+  DayWithPeriod({this.day, this.periods});
 }

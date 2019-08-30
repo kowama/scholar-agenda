@@ -138,4 +138,10 @@ class LocalizationEN implements Localization {
 
   @override
   String get editPeriod => 'Edit Period';
+
+  @override
+  String get youHave => 'You have';
+
+  @override
+  String get classes => 'classes';
 }

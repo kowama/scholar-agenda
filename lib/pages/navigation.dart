@@ -14,11 +14,6 @@ class NavigationDrawer extends StatelessWidget {
     Key key,
   }) : super(key: key);
 
-  void _navigateTo(BuildContext context, String routeName) {
-    Navigator.of(context).pop();
-    Navigator.pushNamed(context, routeName);
-  }
-
   @override
   Widget build(BuildContext context) {
     final localization = Localization.of(context);
@@ -73,5 +68,10 @@ class NavigationDrawer extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _navigateTo(BuildContext context, String routeName) {
+    Navigator.of(context).pop();
+    Navigator.pushNamed(context, routeName);
   }
 }

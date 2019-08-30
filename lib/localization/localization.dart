@@ -88,6 +88,10 @@ abstract class Localization {
 
   String get editPeriod;
 
+  String get youHave;
+
+  String get classes;
+
   String dayOfWeek(int day);
 
   static Localization of(BuildContext context) {
