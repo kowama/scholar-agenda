@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:scholar_agenda/localization/localization.dart';
+
 import '../navigation.dart';
 
 class HelpAndFeedbackPage extends StatefulWidget {
   static const routeName = "/help_and_feedback";
-  final String title = "Help and Feedback";
 
   HelpAndFeedbackPage({Key key}) : super(key: key);
 
@@ -12,13 +13,12 @@ class HelpAndFeedbackPage extends StatefulWidget {
 }
 
 class _HelpAndFeedbackPageState extends State<HelpAndFeedbackPage> {
-  _action() {}
-
   @override
   Widget build(BuildContext context) {
+    final localization = Localization.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(localization.helpAndFeedBack),
       ),
       drawer: new NavigationDrawer(),
       body: Center(
@@ -26,15 +26,10 @@ class _HelpAndFeedbackPageState extends State<HelpAndFeedbackPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              widget.title,
+              localization.helpAndFeedBack,
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _action(),
-        tooltip: 'Action',
-        child: Icon(Icons.add),
       ),
     );
   }

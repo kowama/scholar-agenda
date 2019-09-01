@@ -24,7 +24,6 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
   bool _autoValidateForm = false;
   TimetableBloc _timetableBloc;
   DefaultTimetableBloc _defaultTimetableBloc;
-  Localization localization;
 
   @override
   void initState() {
@@ -35,65 +34,91 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
 
   @override
   Widget build(BuildContext context) {
-    localization = Localization.of(context);
+    final localization = Localization.of(context);
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(localization.manageTimetable),
       ),
-      body: Column(
-        children: <Widget>[
-          ListTile(
-            leading: IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {
-                _showTimetableForm();
-              },
-            ),
-            title: Text(localization.createNewTimetable),
-          ),
-          Divider(
-            height: 16,
-          ),
-          ListTile(
-            title: Text(
-              localization.yourTimetables,
-              style: TextStyle(
-                color: Theme.of(context).accentColor,
-              ),
-            ),
-          ),
-          Expanded(
-            child: BlocBuilder<TimetableBloc, TimetableState>(
-              builder: (BuildContext context, TimetableState state) {
-                if (state is TimetablesLoaded) {
-                  return ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: 4.0),
-                    itemCount: state.timetables.length,
-                    itemBuilder: (context, index) => _buildTimetableTile(
-                      state.timetables[index],
-                    ),
-                  );
-                } else if (state is TimetablesLoading) {
-                  return Center(child: CircularProgressIndicator());
-                } else {
-                  return Center(
-                    child: Text(
-                      state is ErrorTimetablesNotLoaded
-                          ? '$state.error'
-                          : localization.errorUnknownState,
-                    ),
-                  );
-                }
-              },
-            ),
-          )
-        ],
-      ),
+      body: _body(),
     );
   }
 
-  Widget _buildTimetableTile(Timetable timetable) {
+  Widget _body() {
+    final localization = Localization.of(context);
+    final themeData = Theme.of(context);
+    return Column(
+      children: <Widget>[
+        ListTile(
+          leading: IconButton(
+            color: themeData.hintColor,
+            icon: Icon(Icons.add_circle),
+            onPressed: () {
+              _timetableFormDialog();
+            },
+          ),
+          title: Text(localization.createNewTimetable),
+        ),
+        Divider(
+          height: 16,
+        ),
+        ListTile(
+          title: Text(
+            localization.yourTimetables,
+            style: TextStyle(
+              color: themeData.accentColor,
+            ),
+          ),
+        ),
+        Expanded(
+          child: BlocBuilder<TimetableBloc, TimetableState>(
+            builder: (BuildContext context, TimetableState state) {
+              if (state is TimetablesLoaded) {
+                if (state.timetables.isNotEmpty) {
+                  return ListView.builder(
+                    padding: EdgeInsets.symmetric(horizontal: 4.0),
+                    itemCount: state.timetables.length,
+                    itemBuilder: (context, index) => _timetableTile(
+                      state.timetables[index],
+                    ),
+                  );
+                }
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(
+                        Icons.info,
+                        size: 48,
+                        color: themeData.hintColor,
+                      ),
+                      Text(
+                        localization.noTimetables,
+                        style: themeData.textTheme.subhead
+                            .copyWith(color: themeData.hintColor),
+                      ),
+                    ],
+                  ),
+                );
+              } else if (state is TimetablesLoading) {
+                return Center(child: CircularProgressIndicator());
+              } else {
+                return Center(
+                  child: Text(
+                    state is ErrorTimetablesNotLoaded
+                        ? '$state.error'
+                        : localization.errorUnknownState,
+                  ),
+                );
+              }
+            },
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _timetableTile(Timetable timetable) {
     return BlocBuilder<DefaultTimetableBloc, DefaultTimetableState>(
       builder: (BuildContext context, DefaultTimetableState state) {
         final isDefaultTimetable = (state is DefaultTimetableLoaded) &&
@@ -109,54 +134,7 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                 ? Icons.radio_button_checked
                 : Icons.radio_button_unchecked),
             onTap: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    content: Container(
-                      width: double.maxFinite,
-                      height: 180,
-                      child: ListView(
-                        children: <Widget>[
-                          ListTile(
-                            leading: Icon(Icons.check_circle),
-                            title: Text(localization.setAsDefault),
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              _setAsDefault(timetable);
-                            },
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.edit),
-                            title: Text(localization.edit),
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              _showTimetableForm(timetable: timetable);
-                            },
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.delete),
-                            title: Text(localization.delete),
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              _showDeleteDialog(context, timetable);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    actions: <Widget>[
-                      // usually buttons at the bottom of the dialog
-                      new FlatButton(
-                        child: new Text(localization.close),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
+              _timetableOnTap(timetable);
             },
           ),
         );
@@ -164,13 +142,67 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
     );
   }
 
-  void _showTimetableForm({Timetable timetable}) {
+  void _timetableOnTap(Timetable timetable) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final localization = Localization.of(context);
+        return AlertDialog(
+          content: Container(
+            width: double.maxFinite,
+            height: 180,
+            child: ListView(
+              children: <Widget>[
+                ListTile(
+                  leading: Icon(Icons.check_circle),
+                  title: Text(localization.setAsDefault),
+                  onTap: () {
+                    _defaultTimetableBloc
+                        .dispatch(UpdateDefaultTimetable(timetable));
+                    Navigator.of(context).pop();
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.edit),
+                  title: Text(localization.edit),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _timetableFormDialog(timetable: timetable);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.delete),
+                  title: Text(localization.delete),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _deleteDialog(timetable);
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text(localization.close),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _timetableFormDialog({Timetable timetable}) {
     var isCreate = timetable == null;
     timetable ??= Timetable();
 
     showDialog(
         context: context,
         builder: (BuildContext context) {
+          final localization = Localization.of(context);
           return AlertDialog(
             title: Text(isCreate
                 ? localization.createNewTimetable
@@ -278,13 +310,8 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
     return true;
   }
 
-  void _setAsDefault(Timetable timetable) {
-    setState(() {
-      _defaultTimetableBloc.dispatch(UpdateDefaultTimetable(timetable));
-    });
-  }
-
-  void _showDeleteDialog(BuildContext context, Timetable timetable) {
+  void _deleteDialog(Timetable timetable) {
+    final localization = Localization.of(context);
     showDialog(
         context: context,
         builder: (context) {
@@ -320,6 +347,7 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
   void _showInSnackBar(String message) {
     _scaffoldKey.currentState.showSnackBar(SnackBar(
       content: Text(message),
+      duration: Duration(seconds: 10),
     ));
   }
 }

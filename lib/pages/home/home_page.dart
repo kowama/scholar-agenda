@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:scholar_agenda/localization/localization.dart';
 
 import '../navigation.dart';
 
@@ -15,61 +16,86 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
   @override
   Widget build(BuildContext context) {
+    final localization = Localization.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(localization.overview),
       ),
-      drawer: new NavigationDrawer(),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Home',
-            ),
-          ],
-        ),
+      drawer: NavigationDrawer(),
+      body: _body(_selectedIndex),
+      bottomNavigationBar: BottomNavigationBar(
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            title: Text(localization.home),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.business),
+            title: Text('Business'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.school),
+            title: Text('School'),
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
-      floatingActionButton: _buildSpeedDial(context),
+      floatingActionButton: _speedDial(),
     );
   }
 
-  SpeedDial _buildSpeedDial(BuildContext context) {
+  Widget _body(int index) {
+    final tabs = <Widget>[
+      Center(child: Text('Tab 1')),
+      Center(child: Text('Tab 2')),
+      Center(child: Text('Tab 3')),
+    ];
+    return tabs[index];
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  Widget _speedDial() {
+    final themeData = Theme.of(context);
     return SpeedDial(
       animatedIcon: AnimatedIcons.menu_close,
       animatedIconTheme: IconThemeData(size: 22.0),
       overlayColor: Colors.black,
       overlayOpacity: .5,
-      onOpen: () => print('OPENING DIAL'),
-      onClose: () => print('DIAL CLOSED'),
       tooltip: 'Speed Dial',
       heroTag: 'speed-dial-hero-tag',
-      foregroundColor: Colors.white,
       shape: CircleBorder(),
       children: [
         SpeedDialChild(
-            child: Icon(Icons.accessibility),
+            child: Icon(Icons.accessibility, color: themeData.cardColor),
             backgroundColor: Colors.red,
             label: 'First',
-            labelBackgroundColor: Colors.black54,
-            labelStyle: TextStyle(fontSize: 18.0, color: Colors.white),
+            labelBackgroundColor: themeData.hintColor,
+            labelStyle: TextStyle(fontSize: 18.0, color: themeData.cardColor),
             onTap: () => print('FIRST CHILD')),
         SpeedDialChild(
-          child: Icon(Icons.brush),
+          child: Icon(Icons.brush,color: themeData.cardColor,),
           backgroundColor: Colors.blue,
           label: 'Second',
-          labelBackgroundColor: Colors.black54,
-          labelStyle: TextStyle(fontSize: 18.0, color: Colors.white),
+          labelBackgroundColor: themeData.hintColor,
+          labelStyle: TextStyle(fontSize: 18.0, color: themeData.cardColor),
           onTap: () => print('SECOND CHILD'),
         ),
         SpeedDialChild(
-          child: Icon(Icons.keyboard_voice),
+          child: Icon(Icons.keyboard_voice,color: themeData.cardColor),
           backgroundColor: Colors.green,
           label: 'Third',
-          labelBackgroundColor: Colors.black54,
-          labelStyle: TextStyle(fontSize: 18.0, color: Colors.white),
+          labelBackgroundColor: themeData.hintColor,
+          labelStyle: TextStyle(fontSize: 18.0, color: themeData.cardColor),
           onTap: () => print('THIRD CHILD'),
         ),
       ],

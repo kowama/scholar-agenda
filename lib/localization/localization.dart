@@ -92,6 +92,56 @@ abstract class Localization {
 
   String get classes;
 
+  String get day;
+
+  String get period;
+
+  String get noHomework;
+
+  String get noExams;
+
+  String get noReminders;
+
+  String get home;
+
+  String get noSubject;
+
+  String get pickAColor;
+
+  String get subjectDescriptionHint;
+
+  String get formHasErrors;
+
+  String get subjectDescriptionHelper;
+
+  String get yes;
+
+  String get no;
+
+  String get leaveForm;
+
+  String get pleaseFixErrors;
+
+  String get teacher;
+
+  String get enterTeacherName;
+
+  String get ok;
+
+  String get custom;
+
+  String get noTimetables;
+
+  String get roomHint;
+
+  String get room;
+
+  String get end;
+
+  String get start;
+
+  String get undefined;
+
   String dayOfWeek(int day);
 
   static Localization of(BuildContext context) {

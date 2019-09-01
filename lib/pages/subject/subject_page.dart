@@ -29,32 +29,49 @@ class _SubjectPageState extends State<SubjectPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localization = Localization.of(context);
+    final themeData = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(Localization.of(context).subject),
+        title: Text(localization.subject),
       ),
       drawer: NavigationDrawer(),
       body: BlocBuilder<SubjectsBloc, SubjectsState>(builder: (context, state) {
         if (state is SubjectsLoaded) {
           final subjects = state.subjects;
-          return ListView(
-            shrinkWrap: true,
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
-            children: List.generate(
-              subjects.length,
-              (index) {
-                return Center(
-                  child: SubjectCard(
-                    subject: subjects[index],
-                    onTap: () {
-                      _onListItemTap(context, subjects[index]);
-                    },
-                    onLongPress: () {
-                      _onListIemLongPress(context, subjects[index]);
-                    },
-                  ),
-                );
-              },
+          if (subjects.isNotEmpty) {
+            return ListView(
+              shrinkWrap: true,
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+              children: List.generate(
+                subjects.length,
+                (index) {
+                  return Center(
+                    child: SubjectCard(
+                      subject: subjects[index],
+                      onTap: () {
+                        _onListItemTap(context, subjects[index]);
+                      },
+                      onLongPress: () {
+                        _onListIemLongPress(context, subjects[index]);
+                      },
+                    ),
+                  );
+                },
+              ),
+            );
+          }
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(Icons.school, size: 64,color: themeData.hintColor),
+                Text(
+                  localization.noSubject,
+                  style: themeData.textTheme.headline
+                      .copyWith(color: themeData.hintColor),
+                ),
+              ],
             ),
           );
         } else if (state is SubjectsLoading) {
@@ -68,7 +85,7 @@ class _SubjectPageState extends State<SubjectPage> {
         }
       }),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _navigateToSubjectForm(context),
+        onPressed: () => _navigateToSubjectForm(),
         tooltip: Localization.of(context).action,
         child: Icon(Icons.add),
       ),
@@ -123,7 +140,7 @@ class _SubjectPageState extends State<SubjectPage> {
               ),
               onPressed: () {
                 Navigator.of(context).pop();
-                _showDeleteDialog(context, subject);
+                _showDeleteDialog(subject);
               },
             ),
             FlatButton(
@@ -132,7 +149,7 @@ class _SubjectPageState extends State<SubjectPage> {
                   style: TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.of(context).pop();
-                _navigateToSubjectForm(context, subject: subject);
+                _navigateToSubjectForm(subject: subject);
               },
             ),
             FlatButton(
@@ -149,7 +166,7 @@ class _SubjectPageState extends State<SubjectPage> {
     );
   }
 
-  void _showDeleteDialog(BuildContext context, Subject subject) {
+  void _showDeleteDialog(Subject subject) {
     showDialog(
         context: context,
         builder: (context) {
@@ -183,7 +200,7 @@ class _SubjectPageState extends State<SubjectPage> {
         });
   }
 
-  void _navigateToSubjectForm(BuildContext context, {Subject subject}) {
+  void _navigateToSubjectForm({Subject subject}) {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return BlocProvider.value(
         value: _subjectsBloc,

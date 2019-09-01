@@ -40,11 +40,12 @@ class TimetablePeriodsBloc
 
   Stream<TimetablePeriodsState> _mapAddPeriodToState(AddPeriod event) async* {
     if (currentState is TimetablePeriodsLoaded) {
+      final id = await periodDao.insertPeriod(event.period);
+      event.period.id = id;
       final List<Period> updatedPeriods =
           List.from((currentState as TimetablePeriodsLoaded).periods)
             ..add(event.period);
       yield TimetablePeriodsLoaded(event.period.timetable, updatedPeriods);
-      await periodDao.insertPeriod(event.period);
     }
   }
 

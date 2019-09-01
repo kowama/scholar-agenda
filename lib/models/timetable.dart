@@ -49,12 +49,12 @@ class TimetableDao extends DatabaseAccessor<ScholarAgendaAppDb>
 
   Stream<List<Timetable>> watchAllTimetables() => select(timetables).watch();
 
-  Future insertTimetable(Timetable timetable) =>
+  Future<int> insertTimetable(Timetable timetable) =>
       into(timetables).insert(timetable);
 
-  Future updateTimetable(Timetable timetable) =>
+  Future<bool> updateTimetable(Timetable timetable) =>
       update(timetables).replace(timetable);
 
-  Future deleteTimetable(Timetable timetable) =>
+  Future <int> deleteTimetable(Timetable timetable) =>
       delete(timetables).delete(timetable);
 }

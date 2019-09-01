@@ -40,11 +40,12 @@ class SubjectsBloc extends Bloc<SubjectsEvent, SubjectsState> {
 
   Stream<SubjectsState> _mapAddSubjectToState(AddSubject event) async* {
     if (currentState is SubjectsLoaded) {
+      final id = await subjectDao.insertSubject(event.subject);
+      event.subject.id = id;
       final List<Subject> updatedSubjects =
           List.from((currentState as SubjectsLoaded).subjects)
             ..add(event.subject);
       yield SubjectsLoaded(updatedSubjects);
-      subjectDao.insertSubject(event.subject);
     }
   }
 

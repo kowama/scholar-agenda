@@ -17,7 +17,6 @@ A few resources to get you started if this is your first Flutter project:
 - [https://github.com/darioielardi/flutter_speed_dial](https://github.com/darioielardi/flutter_speed_dial)
 - [https://github.com/mchome/flutter_colorpicker](https://github.com/mchome/flutter_colorpicker)
 - [https://github.com/aleksanderwozniak/table_calendar/tree/master/example](https://github.com/aleksanderwozniak/table_calendar/tree/master/example)
-- [https://github.com/jifalops/datetime_picker_formfield](https://github.com/jifalops/datetime_picker_formfield)
 - [https://github.com/imaNNeoFighT/fl_chart](https://github.com/imaNNeoFighT/fl_chart)
 - [https://github.com/danvick/flutter_form_builder](https://github.com/danvick/flutter_form_builder)
 

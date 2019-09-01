@@ -12,8 +12,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  _action() {}
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,11 +28,6 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _action(),
-        tooltip: 'Action',
-        child: Icon(Icons.add),
       ),
     );
   }

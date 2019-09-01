@@ -10,7 +10,9 @@ abstract class TimetablePeriodsEvent extends Equatable {
 class LoadTimetablePeriods extends TimetablePeriodsEvent {
   final Timetable timetable;
 
-  LoadTimetablePeriods(this.timetable) : super([timetable]);
+  LoadTimetablePeriods(this.timetable)
+      : assert(timetable != null),
+        super([timetable]);
 
   @override
   String toString() {

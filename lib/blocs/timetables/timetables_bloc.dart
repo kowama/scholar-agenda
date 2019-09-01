@@ -38,11 +38,14 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
 
   Stream<TimetableState> _mapAddTimetableToState(AddTimetable event) async* {
     if (currentState is TimetablesLoaded) {
+      final id = await timetableDao.insertTimetable(event.timetable);
+      event.timetable.id = id;
+
       final List<Timetable> updatedTimetables =
           List.from((currentState as TimetablesLoaded).timetables)
             ..add(event.timetable);
+
       yield TimetablesLoaded(updatedTimetables);
-      await timetableDao.insertTimetable(event.timetable);
     }
   }
 

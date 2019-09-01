@@ -22,6 +22,7 @@ class ScholarAgendaApp extends StatelessWidget {
       subjectDao: scholarAgendaAppDb.subjectDao,
     );
     return MaterialApp(
+      themeMode: ThemeMode.system,
       title: appName,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -31,10 +32,8 @@ class ScholarAgendaApp extends StatelessWidget {
         primaryColorDark: Colors.indigo[800],
       ),
       darkTheme: ThemeData(
+        primaryColor: Colors.teal[800],
         brightness: Brightness.dark,
-        primaryColor: Colors.teal,
-        accentColor: Colors.tealAccent,
-        primaryColorDark: Colors.teal[800],
       ),
       home: HomePage(),
       routes: <String, WidgetBuilder>{

@@ -69,9 +69,11 @@ class SubjectDao extends DatabaseAccessor<ScholarAgendaAppDb>
 
   Stream<List<Subject>> watchAllSubjects() => select(subjects).watch();
 
-  Future insertSubject(Subject subject) => into(subjects).insert(subject);
+  Future<int> insertSubject(Subject subject) => into(subjects).insert(subject);
 
-  Future updateSubject(Subject subject) => update(subjects).replace(subject);
+  Future<bool> updateSubject(Subject subject) =>
+      update(subjects).replace(subject);
 
-  Future deleteSubject(Subject subject) => delete(subjects).delete(subject);
+  Future<int> deleteSubject(Subject subject) =>
+      delete(subjects).delete(subject);
 }

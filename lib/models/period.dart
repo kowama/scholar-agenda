@@ -41,7 +41,7 @@ class Period extends PeriodDataClass {
       this.dayOfWeek,
       this.start,
       this.end,
-      this.location,
+      this.location = '',
       Timetable timetable,
       Subject subject})
       : _timetable = timetable,
@@ -55,7 +55,7 @@ class Period extends PeriodDataClass {
         dayOfWeek = object.dayOfWeek,
         start = object.start,
         end = object.end,
-        location = object.location,
+        location = object.location ?? '',
         subjectId = object.subjectId,
         _subject = subject,
         timetableId = object.timetableId,
@@ -129,9 +129,9 @@ class PeriodDao extends DatabaseAccessor<ScholarAgendaAppDb>
         .toList();
   }
 
-  Future insertPeriod(Period period) => into(periods).insert(period);
+  Future<int> insertPeriod(Period period) => into(periods).insert(period);
 
-  Future updatePeriod(Period period) => update(periods).replace(period);
+  Future<bool> updatePeriod(Period period) => update(periods).replace(period);
 
-  Future deletePeriod(Period period) => delete(periods).delete(period);
+  Future<int> deletePeriod(Period period) => delete(periods).delete(period);
 }

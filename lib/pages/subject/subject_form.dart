@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:scholar_agenda/blocs/blocs.dart';
 import 'package:scholar_agenda/localization/localization.dart';
@@ -19,98 +20,103 @@ class SubjectFormPage extends StatefulWidget {
 
   @override
   _SubjectFormPageState createState() => _SubjectFormPageState(
-        subject: isCreate
-            ? Subject(
-                color: Colors.blue,
-              )
-            : subject,
+        isCreate ? Subject() : subject,
       );
 }
 
 class _SubjectFormPageState extends State<SubjectFormPage> {
-  static const _horizontalPad = 16.0;
-  static const _verticalPad = 24.0;
+  static const horizontalPad = 16.0;
+  static const verticalPad = 24.0;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormBuilderState>();
 
-  Subject subject;
+  Subject _subject;
   bool _autoValidate = false;
   bool _formWasEdited = false;
 
-  _SubjectFormPageState({this.subject}) : assert(subject != null);
+  _SubjectFormPageState(this._subject) : assert(_subject != null);
 
   @override
   Widget build(BuildContext context) {
     final subjectBloc = BlocProvider.of<SubjectsBloc>(context);
+    final localization = Localization.of(context);
+    final themeData = Theme.of(context);
+    _subject.color ??= themeData.accentColor;
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(widget.isCreate
-            ? Localization.of(context).subjectCreate
-            : Localization.of(context).subjectEdit),
-        backgroundColor: widget.isCreate ? Colors.indigo : subject.color,
+            ? localization.subjectCreate
+            : localization.subjectEdit),
+        backgroundColor:
+            widget.isCreate ? themeData.primaryColor : _subject.color,
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.save),
               onPressed: () {
-                _onSubmitButtonPressed(subjectBloc);
+                _onSubmit(subjectBloc);
               })
         ],
       ),
       body: SafeArea(
         top: false,
         bottom: false,
-        child: Form(
+        child: FormBuilder(
           key: _formKey,
           autovalidate: _autoValidate,
           onWillPop: _warnUserAboutInvalidData,
           child: Scrollbar(
             child: SingleChildScrollView(
               dragStartBehavior: DragStartBehavior.down,
-              padding: const EdgeInsets.symmetric(horizontal: _horizontalPad),
+              padding: const EdgeInsets.symmetric(horizontal: horizontalPad),
               child: Column(
                 children: <Widget>[
-                  const SizedBox(height: _verticalPad),
-                  TextFormField(
+                  const SizedBox(height: verticalPad),
+                  FormBuilderTextField(
+                    attribute: 'title',
                     decoration: InputDecoration(
                         icon: Icon(Icons.title),
-                        labelText: 'Title *',
-                        hintText: "Enter the subject title",
-                        border: UnderlineInputBorder(),
+                        labelText: '${localization.title} *',
+                        hintText: localization.enterATitle,
+                        border: OutlineInputBorder(),
                         filled: true,
                         alignLabelWithHint: true),
-                    onSaved: (String value) {
-                      subject.title = value;
+                    onChanged: (value) {
+                      _subject.title = value?.trim();
                     },
-                    initialValue: widget.isCreate ? '' : subject.title,
-                    validator: _validateRequiredField,
+                    initialValue: _subject.title,
+                    validators: [
+                      FormBuilderValidators.required(),
+                      FormBuilderValidators.min(2)
+                    ],
                   ),
-                  const SizedBox(height: _verticalPad),
-                  TextFormField(
+                  const SizedBox(height: verticalPad),
+                  FormBuilderTextField(
+                    attribute: 'teacher',
                     decoration: InputDecoration(
                         icon: Icon(Icons.person_pin),
-                        labelText: 'Teacher',
-                        hintText: "Enter the teacher name",
-                        border: UnderlineInputBorder(),
+                        labelText: localization.teacher,
+                        hintText: localization.enterTeacherName,
+                        border: OutlineInputBorder(),
                         filled: true,
                         alignLabelWithHint: true),
-                    initialValue: widget.isCreate ? '' : subject.teacher,
-                    onSaved: (String value) {
-                      subject.teacher = value?.trim();
+                    initialValue: _subject.teacher,
+                    onChanged: (value) {
+                      _subject.teacher = value?.trim();
                     },
                   ),
-                  const SizedBox(height: _verticalPad),
+                  const SizedBox(height: verticalPad),
                   Padding(
-                    padding: const EdgeInsets.only(left: _horizontalPad * 2),
+                    padding: const EdgeInsets.only(left: horizontalPad * 2),
                     child: ListTile(
                       leading: Icon(
                         Icons.color_lens,
-                        color: subject.color,
+                        color: _subject.color,
                       ),
-                      title: Text('Pick a color'),
+                      title: Text(localization.pickAColor),
                       trailing: CircleColor(
-                        color: subject.color,
+                        color: _subject.color,
                         circleSize: 30,
                       ),
                       onTap: () {
@@ -118,10 +124,10 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: Text('Select a color'),
+                              title: Text(localization.pickAColor),
                               content: SingleChildScrollView(
                                 child: MaterialColorPicker(
-                                  selectedColor: subject.color,
+                                  selectedColor: _subject.color,
                                   onColorChange: (color) {
                                     _changeColor(color);
                                   },
@@ -129,19 +135,19 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
                               ),
                               actions: <Widget>[
                                 FlatButton(
-                                  child: Text("Custom"),
+                                  child: Text(localization.custom),
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
                                 ),
                                 FlatButton(
-                                  child: Text("Close"),
+                                  child: Text(localization.close),
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
                                 ),
                                 FlatButton(
-                                  child: Text("OK"),
+                                  child: Text(localization.ok),
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
@@ -153,32 +159,33 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
                       },
                     ),
                   ),
-                  const SizedBox(height: _verticalPad),
-                  TextFormField(
+                  const SizedBox(height: verticalPad),
+                  FormBuilderTextField(
+                    attribute: 'description',
                     keyboardType: TextInputType.multiline,
                     maxLines: 5,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: OutlineInputBorder(),
-                      hintText:
-                          'somme description or other details about the subject',
-                      helperText: 'a short description text about the subject',
-                      labelText: 'Add note text',
+                      hintText: localization.subjectDescriptionHint,
+                      helperText: localization.subjectDescriptionHelper,
                     ),
-                    initialValue: widget.isCreate ? '' : subject.description,
-                    onSaved: (String value) {
-                      subject.description = value?.trim();
+                    initialValue: _subject.description,
+                    onChanged: (value) {
+                      _subject.description = value?.trim();
                     },
                   ),
-                  const SizedBox(height: _verticalPad),
+                  const SizedBox(height: verticalPad),
                   RaisedButton.icon(
                     icon: Icon(Icons.save),
-                    color: widget.isCreate ? Colors.indigo : subject.color,
+                    color: widget.isCreate
+                        ? themeData.accentColor
+                        : _subject.color,
                     textColor: Colors.white,
                     elevation: 2,
                     onPressed: () {
-                      _onSubmitButtonPressed(subjectBloc);
+                      _onSubmit(subjectBloc);
                     },
-                    label: Text('Submit'),
+                    label: Text(localization.save),
                   ),
                 ],
               ),
@@ -189,31 +196,32 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
     );
   }
 
-  void _changeColor(Color color) => setState(() => subject.color = color);
+  void _changeColor(Color color) => setState(() => _subject.color = color);
 
-  bool _saveSubject(SubjectsBloc subjectBloc) {
-    if (!_formKey.currentState.validate()) {
-      _autoValidate = true;
-      _showInSnackBar('Please fix the errors in red before submitting.');
-      return false;
-    }
-    // form validated
-    final FormState form = _formKey.currentState;
-    form.save();
-    if (widget.isCreate) {
-      subjectBloc.dispatch(AddSubject(subject));
-    } else {
-      subjectBloc.dispatch(UpdateSubject(subject));
-    }
-    return true;
-  }
-
-  void _onSubmitButtonPressed(SubjectsBloc subjectBloc) {
+  void _onSubmit(SubjectsBloc subjectBloc) {
     if (!_saveSubject(subjectBloc)) return;
     if (widget.isCreate)
       Navigator.pushNamed(context, SubjectPage.routeName);
     else
       Navigator.pop(context);
+  }
+
+  bool _saveSubject(SubjectsBloc subjectBloc) {
+    final localization = Localization.of(context);
+    if (!_formKey.currentState.validate()) {
+      _autoValidate = true;
+      _showInSnackBar(localization.pleaseFixErrors);
+      return false;
+    }
+    // form validated
+    final form = _formKey.currentState;
+    form.save();
+    if (widget.isCreate) {
+      subjectBloc.dispatch(AddSubject(_subject));
+    } else {
+      subjectBloc.dispatch(UpdateSubject(_subject));
+    }
+    return true;
   }
 
   void _showInSnackBar(String message) {
@@ -222,31 +230,26 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
     ));
   }
 
-  String _validateRequiredField(String value) {
-    _formWasEdited = true;
-    if (value.isEmpty) return 'Field is required.';
-    return null;
-  }
-
   Future<bool> _warnUserAboutInvalidData() async {
-    final FormState form = _formKey.currentState;
+    final form = _formKey.currentState;
+    final localization = Localization.of(context);
     if (form == null || !_formWasEdited || form.validate()) return true;
 
     return await showDialog<bool>(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('This form has errors'),
-              content: const Text('Really leave this form?'),
+              title: Text(localization.formHasErrors),
+              content: Text(localization.leaveForm),
               actions: <Widget>[
                 FlatButton(
-                  child: const Text('YES'),
+                  child: Text(localization.yes),
                   onPressed: () {
                     Navigator.of(context).pop(true);
                   },
                 ),
                 FlatButton(
-                  child: const Text('NO'),
+                  child: Text(localization.no),
                   onPressed: () {
                     Navigator.of(context).pop(false);
                   },

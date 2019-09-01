@@ -59,146 +59,153 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
         title: Text(widget.isCreate
             ? localization.createPeriod
             : localization.editPeriod),
-        backgroundColor: Colors.indigo,
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.save), onPressed: _onSubmitButtonPressed)
+          IconButton(icon: Icon(Icons.save), onPressed: _onSubmit)
         ],
       ),
       body: SafeArea(
         top: false,
         bottom: false,
-        child: FormBuilder(
-          key: formKey,
-          autovalidate: _autoValidate,
-          onWillPop: _warnUserAboutInvalidData,
-          child: Scrollbar(
-            child: SingleChildScrollView(
-              dragStartBehavior: DragStartBehavior.down,
-              padding: const EdgeInsets.symmetric(horizontal: _horizontalPad),
-              child: Column(
-                children: [
-                  const SizedBox(height: _verticalPad),
-                  BlocBuilder<SubjectsBloc, SubjectsState>(
-                    builder: (context, state) {
-                      if (state is SubjectsLoaded) {
-                        return FormBuilderDropdown(
-                          attribute: "subject",
-                          decoration: InputDecoration(
-                            labelText: "Subject",
-                            border: OutlineInputBorder(),
-                          ),
-                          hint: Text(localization.pickASubject),
-                          validators: [FormBuilderValidators.required()],
-                          items: state.subjects
-                              .map((subject) => DropdownMenuItem(
-                                    value: subject,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Text(subject.title),
-                                        CircleAvatar(
-                                          radius: 4,
-                                          backgroundColor: subject.color,
-                                        )
-                                      ],
-                                    ),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            period.subject = value;
-                          },
-                        );
-                      } else {
-                        return Center(
-                          child: (state is SubjectsLoading)
-                              ? CircularProgressIndicator()
-                              : Text(localization.errorUnableToLoadData),
-                        );
-                      }
-                    },
-                  ),
-                  const SizedBox(height: _verticalPad),
-                  FormBuilderDropdown(
-                    attribute: "day",
-                    decoration: InputDecoration(
-                      labelText: "Day",
-                      border: OutlineInputBorder(),
-                    ),
-                    hint: Text(localization.pickADay),
-                    validators: [FormBuilderValidators.required()],
-                    items: List.generate(7, (index) => ++index)
-                        .map((day) => DropdownMenuItem(
-                              value: day,
-                              child:
-                                  Text(Localization.of(context).dayOfWeek(day)),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      period.dayOfWeek = value;
-                    },
-                  ),
-                  const SizedBox(height: _verticalPad),
-                  FormBuilderDateTimePicker(
-                    attribute: "Start",
-                    inputType: InputType.time,
-                    format: DateFormat("HH:mm"),
-                    decoration: InputDecoration(
-                      labelText: "Sart",
-                      border: OutlineInputBorder(),
-                    ),
-                    validators: [
-                      FormBuilderValidators.required(),
-                    ],
-                    onChanged: (value) {
-                      period.start = value;
-                    },
-                  ),
-                  const SizedBox(height: _verticalPad),
-                  FormBuilderDateTimePicker(
-                    attribute: "end",
-                    inputType: InputType.time,
-                    format: DateFormat("HH:mm"),
-                    decoration: InputDecoration(
-                      labelText: "End",
-                      border: OutlineInputBorder(),
-                    ),
-                    validators: [
-                      FormBuilderValidators.required(),
-                    ],
-                    onChanged: (value) {
-                      period.end = value;
-                    },
-                  ),
-                  const SizedBox(height: _verticalPad),
-                  FormBuilderTextField(
-                    attribute: "room",
-                    decoration: InputDecoration(
-                      labelText: "Room",
-                      hintText: 'Enter a room name',
-                      border: OutlineInputBorder(),
-                    ),
-                    initialValue: '',
-                    validators: [
-                      FormBuilderValidators.required(),
-                      FormBuilderValidators.maxLength(50),
-                    ],
-                    onChanged: (value) {
-                      period.location = value;
-                    },
-                  ),
-                  const SizedBox(height: _verticalPad),
-                  RaisedButton.icon(
-                    icon: Icon(Icons.save),
-                    color: Colors.indigo,
-                    textColor: Colors.white,
-                    elevation: 2,
-                    onPressed: _onSubmitButtonPressed,
-                    label: Text(Localization.of(context).save),
-                  ),
-                ],
+        child: _form(),
+      ),
+    );
+  }
+
+  Widget _form() {
+    final localization = Localization.of(context);
+    final themeData = Theme.of(context);
+    return FormBuilder(
+      key: formKey,
+      autovalidate: _autoValidate,
+      onWillPop: _warnUserAboutInvalidData,
+      child: Scrollbar(
+        child: SingleChildScrollView(
+          dragStartBehavior: DragStartBehavior.down,
+          padding: const EdgeInsets.symmetric(horizontal: _horizontalPad),
+          child: Column(
+            children: [
+              const SizedBox(height: _verticalPad),
+              BlocBuilder<SubjectsBloc, SubjectsState>(
+                builder: (context, state) {
+                  if (state is SubjectsLoaded) {
+                    return FormBuilderDropdown(
+                      initialValue: period.subject,
+                      attribute: "subject",
+                      decoration: InputDecoration(
+                        labelText: localization.subject,
+                        border: OutlineInputBorder(),
+                      ),
+                      hint: Text(localization.pickASubject),
+                      validators: [FormBuilderValidators.required()],
+                      items: state.subjects
+                          .map((subject) => DropdownMenuItem(
+                                value: subject,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text(subject.title),
+                                    CircleAvatar(
+                                      radius: 4,
+                                      backgroundColor: subject.color,
+                                    )
+                                  ],
+                                ),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        period.subject = value;
+                      },
+                    );
+                  } else {
+                    return Center(
+                      child: (state is SubjectsLoading)
+                          ? CircularProgressIndicator()
+                          : Text(localization.errorUnableToLoadData),
+                    );
+                  }
+                },
               ),
-            ),
+              const SizedBox(height: _verticalPad),
+              FormBuilderDropdown(
+                attribute: "day",
+                decoration: InputDecoration(
+                  labelText: localization.day,
+                  border: OutlineInputBorder(),
+                ),
+                initialValue: period.dayOfWeek,
+                hint: Text(localization.pickADay),
+                validators: [FormBuilderValidators.required()],
+                items: List.generate(7, (index) => ++index)
+                    .map((day) => DropdownMenuItem(
+                          value: day,
+                          child: Text(Localization.of(context).dayOfWeek(day)),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  period.dayOfWeek = value;
+                },
+              ),
+              const SizedBox(height: _verticalPad),
+              FormBuilderDateTimePicker(
+                attribute: "start",
+                initialValue: period.start,
+                inputType: InputType.time,
+                format: DateFormat("HH:mm"),
+                decoration: InputDecoration(
+                  labelText: localization.start,
+                  border: OutlineInputBorder(),
+                ),
+                validators: [
+                  FormBuilderValidators.required(),
+                ],
+                onChanged: (value) {
+                  period.start = value;
+                },
+              ),
+              const SizedBox(height: _verticalPad),
+              FormBuilderDateTimePicker(
+                attribute: "end",
+                initialValue: period.end,
+                inputType: InputType.time,
+                format: DateFormat("HH:mm"),
+                decoration: InputDecoration(
+                  labelText: localization.end,
+                  border: OutlineInputBorder(),
+                ),
+                validators: [
+                  FormBuilderValidators.required(),
+                ],
+                onChanged: (value) {
+                  period.end = value;
+                },
+              ),
+              const SizedBox(height: _verticalPad),
+              FormBuilderTextField(
+                attribute: "room",
+                decoration: InputDecoration(
+                  labelText: localization.room,
+                  hintText: localization.roomHint,
+                  border: OutlineInputBorder(),
+                ),
+                initialValue: period.location,
+                validators: [
+                  FormBuilderValidators.maxLength(50),
+                ],
+                onChanged: (value) {
+                  period.location = value;
+                },
+              ),
+              const SizedBox(height: _verticalPad),
+              RaisedButton.icon(
+                icon: Icon(Icons.save),
+                color: themeData.accentColor,
+                textColor: themeData.cardColor,
+                elevation: 2,
+                onPressed: _onSubmit,
+                label: Text(localization.save),
+              ),
+            ],
           ),
         ),
       ),
@@ -206,9 +213,10 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
   }
 
   bool _savePeriod() {
+    final localization = Localization.of(context);
     if (!formKey.currentState.validate()) {
       _autoValidate = true;
-      _showInSnackBar('Please fix the errors in red before submitting.');
+      _showInSnackBar(localization.pleaseFixErrors);
       return false;
     }
     // form validated
@@ -223,21 +231,21 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
     return true;
   }
 
-  void _onSubmitButtonPressed() {
+  void _onSubmit() {
     if (!_savePeriod()) return;
-    if (widget.isCreate)
-      Navigator.pushNamed(context, TimetablePage.routeName);
-    else
-      Navigator.pop(context);
+    Navigator.pop(context);
+    Navigator.pushNamed(context, TimetablePage.routeName);
+
   }
 
-  void _showInSnackBar(String value) {
+  void _showInSnackBar(String message) {
     scaffoldKey.currentState.showSnackBar(SnackBar(
-      content: Text(value),
+      content: Text(message),
     ));
   }
 
   Future<bool> _warnUserAboutInvalidData() async {
+    final localization = Localization.of(context);
     final form = formKey.currentState;
     if (form == null || !_formWasEdited || form.validate()) return true;
 
@@ -245,17 +253,17 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('This form has errors'),
-              content: const Text('Really leave this form?'),
+              title: Text(localization.formHasErrors),
+              content: Text(localization.leaveForm),
               actions: <Widget>[
                 FlatButton(
-                  child: const Text('YES'),
+                  child: Text(localization.yes),
                   onPressed: () {
                     Navigator.of(context).pop(true);
                   },
                 ),
                 FlatButton(
-                  child: const Text('NO'),
+                  child: Text(localization.no),
                   onPressed: () {
                     Navigator.of(context).pop(false);
                   },

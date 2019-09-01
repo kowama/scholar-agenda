@@ -143,5 +143,82 @@ class LocalizationEN implements Localization {
   String get youHave => 'You have';
 
   @override
-  String get classes => 'classes';
+  String get classes => 'Classes';
+
+  @override
+  String get day => 'Day';
+
+  @override
+  String get period => 'Period';
+
+  @override
+  String get noHomework => 'No homework';
+
+  @override
+  String get noExams => 'No exams';
+
+  @override
+  String get noReminders => 'No reminders';
+
+  @override
+  String get home => 'Home';
+
+  @override
+  String get noSubject => 'No subjects';
+
+  @override
+  String get pickAColor => 'Pick a color';
+
+  @override
+  String get subjectDescriptionHint =>
+      'Somme description or other details about the subject';
+
+  @override
+  String get subjectDescriptionHelper =>
+      'a short description text about the subject';
+
+  @override
+  String get formHasErrors => 'This form has errors';
+
+  String get leaveForm => 'Really leave this form?';
+
+  @override
+  String get no => 'NO';
+
+  @override
+  String get yes => 'YES';
+
+  @override
+  String get pleaseFixErrors =>
+      'Please fix the errors in red before submitting.';
+
+  @override
+  String get enterTeacherName => 'Enter teacher name';
+
+  @override
+  String get teacher => 'Teacher';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get custom => 'Custom';
+
+  @override
+  String get noTimetables => 'No timetable available';
+
+  @override
+  String get roomHint => 'Enter a room name';
+
+  @override
+  String get room => 'Room';
+
+  @override
+  String get end => 'End';
+
+  @override
+  String get start => 'Sart';
+
+  @override
+  String get undefined => 'undefined';
 }

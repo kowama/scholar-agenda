@@ -34,7 +34,7 @@ class NavigationDrawer extends StatelessWidget {
             onTap: () => _navigateTo(context, HomePage.routeName),
           ),
           ListTile(
-            leading: Icon(Icons.view_agenda),
+            leading: Icon(Icons.book),
             title: Text(localization.agenda),
             onTap: () => _navigateTo(context, AgendaPage.routeName),
           ),
@@ -56,14 +56,14 @@ class NavigationDrawer extends StatelessWidget {
           ),
           Divider(),
           ListTile(
-            leading: Icon(Icons.help),
-            title: Text(localization.helpAndFeedBack),
-            onTap: () => _navigateTo(context, HelpAndFeedbackPage.routeName),
-          ),
-          ListTile(
             leading: Icon(Icons.settings),
             title: Text(localization.settings),
             onTap: () => _navigateTo(context, SettingsPage.routeName),
+          ),
+          ListTile(
+            leading: Icon(Icons.help),
+            title: Text(localization.helpAndFeedBack),
+            onTap: () => _navigateTo(context, HelpAndFeedbackPage.routeName),
           ),
         ],
       ),
