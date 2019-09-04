@@ -31,7 +31,8 @@ dependencies:
   shared_preferences: ^0.5.3
   flutter_form_builder: ^3.4.1
   fl_chart: ^0.2.0
-
+  flutter_local_notifications: ^0.8.2
+  android_alarm_manager: ^0.4.4
 
 dev_dependencies:
   flutter_test:
@@ -41,7 +42,6 @@ dev_dependencies:
 
 
 flutter:
-
   uses-material-design: true
 
   assets:

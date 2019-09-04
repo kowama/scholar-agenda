@@ -6,10 +6,14 @@ import 'timetable.dart';
 
 part 'period.g.dart';
 
+/// generate db after editing the code
+/// cmd :: flutter pub run build_runner build watch
+
 @DataClassName('PeriodDataClass')
 class Periods extends Table {
   IntColumn get id => integer().autoIncrement()();
 
+  // integer [1(monday) - 7(sunday)]
   IntColumn get dayOfWeek => integer()();
 
   DateTimeColumn get start => dateTime()();

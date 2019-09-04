@@ -1,4 +1,5 @@
 export 'default_timetable/default_timetable.dart';
+export 'events/events.dart';
 export 'settings/settings.dart';
 export 'subjects/subjects.dart';
 export 'timetable_periods/timetable_periods.dart';

@@ -51,9 +51,9 @@ class _HomePageState extends State<HomePage> {
 
   Widget _body(int index) {
     final tabs = <Widget>[
-      Center(child: Text('Tab 1')),
-      Center(child: Text('Tab 2')),
-      Center(child: Text('Tab 3')),
+      _homeTab(),
+      _tabTwo(),
+      _tabThree(),
     ];
     return tabs[index];
   }
@@ -64,6 +64,18 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Widget _homeTab() {
+    return Center(child: Text('Tab 1'));
+  }
+
+  Widget _tabTwo() {
+    return Center(child: Text('Tab 2'));
+  }
+
+  Widget _tabThree() {
+    return Center(child: Text('Tab 3'));
+  }
+
   Widget _speedDial() {
     final themeData = Theme.of(context);
     return SpeedDial(
@@ -71,28 +83,29 @@ class _HomePageState extends State<HomePage> {
       animatedIconTheme: IconThemeData(size: 22.0),
       overlayColor: Colors.black,
       overlayOpacity: .5,
-      tooltip: 'Speed Dial',
-      heroTag: 'speed-dial-hero-tag',
       shape: CircleBorder(),
       children: [
         SpeedDialChild(
             child: Icon(Icons.accessibility, color: themeData.cardColor),
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.pink,
             label: 'First',
             labelBackgroundColor: themeData.hintColor,
             labelStyle: TextStyle(fontSize: 18.0, color: themeData.cardColor),
             onTap: () => print('FIRST CHILD')),
         SpeedDialChild(
-          child: Icon(Icons.brush,color: themeData.cardColor,),
-          backgroundColor: Colors.blue,
+          child: Icon(
+            Icons.brush,
+            color: themeData.cardColor,
+          ),
+          backgroundColor: Colors.indigo,
           label: 'Second',
           labelBackgroundColor: themeData.hintColor,
           labelStyle: TextStyle(fontSize: 18.0, color: themeData.cardColor),
           onTap: () => print('SECOND CHILD'),
         ),
         SpeedDialChild(
-          child: Icon(Icons.keyboard_voice,color: themeData.cardColor),
-          backgroundColor: Colors.green,
+          child: Icon(Icons.keyboard_voice, color: themeData.cardColor),
+          backgroundColor: Colors.teal,
           label: 'Third',
           labelBackgroundColor: themeData.hintColor,
           labelStyle: TextStyle(fontSize: 18.0, color: themeData.cardColor),

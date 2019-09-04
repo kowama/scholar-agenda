@@ -5,6 +5,9 @@ import 'database.dart';
 
 part 'subject.g.dart';
 
+/// generate db after editing the code
+/// cmd :: flutter pub run build_runner build watch
+
 @DataClassName('SubjectDataClass')
 class Subjects extends Table {
   IntColumn get id => integer().autoIncrement()();

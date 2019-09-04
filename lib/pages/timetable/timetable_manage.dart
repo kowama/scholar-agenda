@@ -222,7 +222,7 @@ class _TimetableManagePageState extends State<TimetableManagePage> {
                         decoration: InputDecoration(
                           labelText: '${localization.title} *',
                           border: OutlineInputBorder(),
-                          hintText: localization.enterATitle,
+                          hintText: localization.titleHint,
                         ),
                         validators: [FormBuilderValidators.min(1)],
                         onChanged: (value) {

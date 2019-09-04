@@ -40,7 +40,7 @@ abstract class Localization {
 
   String get title;
 
-  String get enterATitle;
+  String get titleHint;
 
   String get save;
 
@@ -48,7 +48,7 @@ abstract class Localization {
 
   String get formErrorMessage;
 
-  String get pickADate;
+  String get dateHint;
 
   String get pickAStartDate;
 
@@ -142,7 +142,26 @@ abstract class Localization {
 
   String get undefined;
 
+  String get homework;
+
+  String get exam;
+
+  String get reminder;
+
+  String get description;
+
+  String get descriptionHint;
+
+  String get date;
+
+  String get create;
+
+  String get startCantBeBeforeAfter;
+
   String dayOfWeek(int day);
+
+  /// typeValue 0(Homework) 1(Exam) 2(Reminder)
+  String eventType(int typeValue);
 
   static Localization of(BuildContext context) {
     return Localizations.of<Localization>(context, Localization);

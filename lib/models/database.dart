@@ -1,4 +1,5 @@
 import 'package:moor_flutter/moor_flutter.dart';
+import 'package:scholar_agenda/models/event.dart';
 
 import 'period.dart';
 import 'subject.dart';
@@ -9,8 +10,8 @@ part 'database.g.dart';
 const AppDbName = 'scholar_agenda_db.sqlite';
 
 @UseMoor(
-    tables: [Periods, Timetables, Subjects],
-    daos: [PeriodDao, TimetableDao, SubjectDao])
+    tables: [Periods, Timetables, Subjects, Events],
+    daos: [PeriodDao, TimetableDao, SubjectDao, EventDao])
 class ScholarAgendaAppDb extends _$ScholarAgendaAppDb {
   ScholarAgendaAppDb()
       : super(FlutterQueryExecutor.inDatabaseFolder(

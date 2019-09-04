@@ -11,6 +11,7 @@ import 'pages/pages.dart';
 const appName = 'Scholar Agenda';
 
 class ScholarAgendaApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     final scholarAgendaAppDb = Provider.of<ScholarAgendaAppDb>(context);
@@ -37,7 +38,19 @@ class ScholarAgendaApp extends StatelessWidget {
       ),
       home: HomePage(),
       routes: <String, WidgetBuilder>{
-        AgendaPage.routeName: (context) => AgendaPage(),
+        AgendaPage.routeName: (context) => MultiBlocProvider(
+              providers: [
+                BlocProvider<SubjectsBloc>(
+                  builder: (context) => subjectBloc,
+                ),
+                BlocProvider<EventsBloc>(
+                  builder: (context) => EventsBloc(
+                    eventDao: scholarAgendaAppDb.eventDao,
+                  ),
+                ),
+              ],
+              child: AgendaPage(),
+            ),
         SubjectPage.routeName: (context) => BlocProvider<SubjectsBloc>(
               builder: (context) => subjectBloc,
               child: SubjectPage(),

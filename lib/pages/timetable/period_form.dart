@@ -22,7 +22,7 @@ class PeriodFormPage extends StatefulWidget {
 
   @override
   _PeriodFormPageState createState() => _PeriodFormPageState(
-        period: isCreate ? Period() : period,
+        isCreate ? Period() : period,
       );
 }
 
@@ -35,12 +35,11 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
   TimetablePeriodsBloc _timetablePeriodsBloc;
   SubjectsBloc _subjectsBloc;
 
-  Period period;
-  List<Subject> subjects;
+  Period _period;
   bool _autoValidate = false;
   bool _formWasEdited = false;
 
-  _PeriodFormPageState({this.subjects, this.period}) : assert(period != null);
+  _PeriodFormPageState(this._period) : assert(_period != null);
 
   @override
   void initState() {
@@ -89,7 +88,7 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
                 builder: (context, state) {
                   if (state is SubjectsLoaded) {
                     return FormBuilderDropdown(
-                      initialValue: period.subject,
+                      initialValue: _period.subject,
                       attribute: "subject",
                       decoration: InputDecoration(
                         labelText: localization.subject,
@@ -114,7 +113,7 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
                               ))
                           .toList(),
                       onChanged: (value) {
-                        period.subject = value;
+                        _period.subject = value;
                       },
                     );
                   } else {
@@ -133,7 +132,7 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
                   labelText: localization.day,
                   border: OutlineInputBorder(),
                 ),
-                initialValue: period.dayOfWeek,
+                initialValue: _period.dayOfWeek,
                 hint: Text(localization.pickADay),
                 validators: [FormBuilderValidators.required()],
                 items: List.generate(7, (index) => ++index)
@@ -143,13 +142,13 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
                         ))
                     .toList(),
                 onChanged: (value) {
-                  period.dayOfWeek = value;
+                  _period.dayOfWeek = value;
                 },
               ),
               const SizedBox(height: _verticalPad),
               FormBuilderDateTimePicker(
                 attribute: "start",
-                initialValue: period.start,
+                initialValue: _period.start,
                 inputType: InputType.time,
                 format: DateFormat("HH:mm"),
                 decoration: InputDecoration(
@@ -160,13 +159,13 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
                   FormBuilderValidators.required(),
                 ],
                 onChanged: (value) {
-                  period.start = value;
+                  _period.start = value;
                 },
               ),
               const SizedBox(height: _verticalPad),
               FormBuilderDateTimePicker(
                 attribute: "end",
-                initialValue: period.end,
+                initialValue: _period.end,
                 inputType: InputType.time,
                 format: DateFormat("HH:mm"),
                 decoration: InputDecoration(
@@ -177,7 +176,7 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
                   FormBuilderValidators.required(),
                 ],
                 onChanged: (value) {
-                  period.end = value;
+                  _period.end = value;
                 },
               ),
               const SizedBox(height: _verticalPad),
@@ -188,12 +187,12 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
                   hintText: localization.roomHint,
                   border: OutlineInputBorder(),
                 ),
-                initialValue: period.location,
+                initialValue: _period.location,
                 validators: [
                   FormBuilderValidators.maxLength(50),
                 ],
                 onChanged: (value) {
-                  period.location = value;
+                  _period.location = value;
                 },
               ),
               const SizedBox(height: _verticalPad),
@@ -221,12 +220,12 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
     }
     // form validated
     final form = formKey.currentState;
-    period.timetable = widget.timetable;
+    _period.timetable = widget.timetable;
     form.save();
     if (widget.isCreate) {
-      _timetablePeriodsBloc.dispatch(AddPeriod(period));
+      _timetablePeriodsBloc.dispatch(AddPeriod(_period));
     } else {
-      _timetablePeriodsBloc.dispatch(UpdatePeriod(period));
+      _timetablePeriodsBloc.dispatch(UpdatePeriod(_period));
     }
     return true;
   }
@@ -235,7 +234,6 @@ class _PeriodFormPageState extends State<PeriodFormPage> {
     if (!_savePeriod()) return;
     Navigator.pop(context);
     Navigator.pushNamed(context, TimetablePage.routeName);
-
   }
 
   void _showInSnackBar(String message) {

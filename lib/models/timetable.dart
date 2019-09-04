@@ -5,6 +5,9 @@ import 'database.dart';
 
 part 'timetable.g.dart';
 
+/// generate db after editing the code
+/// cmd :: flutter pub run build_runner build watch
+
 @DataClassName('TimetableDataClass')
 class Timetables extends Table {
   IntColumn get id => integer().autoIncrement()();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scholar_agenda/blocs/blocs.dart';
+import 'package:scholar_agenda/commons/commons.dart';
 import 'package:scholar_agenda/localization/localization.dart';
 import 'package:scholar_agenda/models/models.dart';
 import 'package:scholar_agenda/widgets/timetable.dart';
@@ -176,12 +177,4 @@ class _TimetablePageState extends State<TimetablePage> {
         : null;
     // timetable not defined
   }
-}
-
-class Choice {
-  const Choice({this.title, this.icon, this.onSelected});
-
-  final String title;
-  final IconData icon;
-  final VoidCallback onSelected;
 }

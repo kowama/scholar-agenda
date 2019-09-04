@@ -7,8 +7,6 @@ import 'package:scholar_agenda/models/models.dart';
 import 'package:scholar_agenda/pages/timetable/period_form.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-final timeFormat = intl.DateFormat.Hm();
-
 class TimetableWidget extends StatefulWidget {
   final Timetable timetable;
   final TimetablePageTab timetablePageTab;
@@ -64,6 +62,8 @@ class _TimetableWidgetState extends State<TimetableWidget> {
   void _onPeriodTap(Period period) {
     final localization = Localization.of(context);
     final themeData = Theme.of(context);
+    final timeFormat =
+        intl.DateFormat.Hm(Localizations.localeOf(context).languageCode);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -96,7 +96,8 @@ class _TimetableWidgetState extends State<TimetableWidget> {
                         Icons.room,
                         size: 12,
                       ),
-                      Text('  ${period.location.isNotEmpty?period.location:localization.undefined }'),
+                      Text(
+                          '  ${period.location.isNotEmpty ? period.location : localization.undefined}'),
                     ],
                   ),
                 )
@@ -496,6 +497,8 @@ class _DaysListViewState extends State<DaysListView> {
   List<Widget> _periodsToView(List<Period> periods) {
     final localization = Localization.of(context);
     final themeData = Theme.of(context);
+    final timeFormat =
+        intl.DateFormat.Hm(Localizations.localeOf(context).languageCode);
     return periods
         .map(
           (period) => Card(
@@ -523,7 +526,9 @@ class _DaysListViewState extends State<DaysListView> {
                     size: 12,
                     color: themeData.hintColor,
                   ),
-                  Text('  ${period.location.isNotEmpty?period.location:localization.undefined }')
+                  Text(period.location.isNotEmpty
+                      ? period.location.padLeft(2)
+                      : localization.undefined.toLowerCase().padLeft(2))
                 ],
               ),
               trailing: Container(

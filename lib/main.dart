@@ -10,6 +10,7 @@ import 'scholar_agenda_app.dart';
 void main() async {
   BlocSupervisor.delegate = SimpleBlocDelegate();
   await Preferences.initialize();
+
   runApp(
     Provider<ScholarAgendaAppDb>(
       builder: (context) => ScholarAgendaAppDb(),

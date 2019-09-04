@@ -53,7 +53,7 @@ class LocalizationEN implements Localization {
   String get title => 'Title';
 
   @override
-  String get enterATitle => 'Enter a title';
+  String get titleHint => 'Enter a title';
 
   @override
   String get save => 'Save';
@@ -66,7 +66,7 @@ class LocalizationEN implements Localization {
       'Please fix the errors in red before submitting.';
 
   @override
-  String get pickADate => 'Pick a date';
+  String get dateHint => 'Pick a date';
 
   @override
   String get pickAStartDate => 'Pick a start date';
@@ -220,5 +220,36 @@ class LocalizationEN implements Localization {
   String get start => 'Sart';
 
   @override
-  String get undefined => 'undefined';
+  String get undefined => 'Undefined';
+
+  @override
+  String get exam => 'Exam';
+
+  @override
+  String get homework => 'Homework';
+
+  @override
+  String get reminder => 'Reminder';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get descriptionHint => 'Add a description text';
+
+  @override
+  String eventType(int typeValue) {
+    assert(typeValue >= 0 && typeValue <= 2);
+    final types = ['Homework', 'Exam', 'Reminder'];
+    return types[typeValue];
+  }
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get startCantBeBeforeAfter => 'Star can\'t be before after';
 }
