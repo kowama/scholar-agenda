@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:scholar_agenda/blocs/blocs.dart';
 import 'package:scholar_agenda/commons/commons.dart';
@@ -8,6 +10,7 @@ import 'package:scholar_agenda/models/event.dart';
 import 'package:scholar_agenda/pages/agenda/event_form.dart';
 
 import '../navigation.dart';
+import 'event_detail.dart';
 
 class AgendaPage extends StatefulWidget {
   static const routeName = "/agenda";
@@ -70,21 +73,39 @@ class _AgendaPageState extends State<AgendaPage> {
           ],
         ),
         drawer: NavigationDrawer(),
-        body: TabBarView(
-          children: [
-            _homeWorksTab(),
-            _examsTab(),
-            _remindersTab(),
-          ],
-        ),
+        body: BlocBuilder<EventsBloc, EventsState>(builder: (context, state) {
+          if (state is EventsLoaded) {
+            final events = state.events;
+            return TabBarView(
+              children: [
+                _homeWorksTab(events),
+                _examsTab(events),
+                _remindersTab(events),
+              ],
+            );
+          } else if (state is EventsLoading) {
+            return Center(child: CircularProgressIndicator());
+          }
+          return Center(child: Text(localization.errorUnableToLoadData));
+        }),
         floatingActionButton: _speedDial(),
       ),
     );
   }
 
-  Widget _homeWorksTab() {
+  Widget _homeWorksTab(List<Event> events) {
     final localization = Localization.of(context);
     final themeData = Theme.of(context);
+    if (events.isNotEmpty) {
+      return ListView(
+        children: events
+            .map((event) => EventView(
+                  event: event,
+                  onTap: _eventOnTap,
+                ))
+            .toList(),
+      );
+    }
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -104,7 +125,7 @@ class _AgendaPageState extends State<AgendaPage> {
     );
   }
 
-  Widget _examsTab() {
+  Widget _examsTab(List<Event> events) {
     final localization = Localization.of(context);
     final themeData = Theme.of(context);
     return Center(
@@ -126,20 +147,17 @@ class _AgendaPageState extends State<AgendaPage> {
     );
   }
 
-  Widget _remindersTab() {
+  Widget _remindersTab(List<Event> events) {
     final localization = Localization.of(context);
     final themeData = Theme.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          GestureDetector(
-            child: Icon(
-              Icons.notifications,
-              size: 64,
-              color: themeData.hintColor,
-            ),
-            onTap: () {},
+          Icon(
+            Icons.notifications,
+            size: 64,
+            color: themeData.hintColor,
           ),
           Text(
             localization.noReminders,
@@ -191,17 +209,26 @@ class _AgendaPageState extends State<AgendaPage> {
 
   void _navigateToForm(EventType type) {
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => MultiBlocProvider(
-              providers: [
-                BlocProvider<SubjectsBloc>(
-                  builder: (context) => _subjectsBloc,
+        builder: (context) => BlocProvider.value(
+              value: _subjectsBloc,
+              child: BlocProvider.value(
+                value: _eventsBloc,
+                child: EventFormPage(
+                  eventType: type,
                 ),
-                BlocProvider<EventsBloc>(
-                  builder: (context) => _eventsBloc,
-                )
-              ],
-              child: EventFormPage(
-                eventType: type,
+              ),
+            )));
+  }
+
+  void _eventOnTap(Event event) {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => BlocProvider.value(
+              value: _eventsBloc,
+              child: BlocProvider.value(
+                value: _subjectsBloc,
+                child: EventDetailPage(
+                  event: event,
+                ),
               ),
             )));
   }
@@ -215,3 +242,58 @@ class _AgendaPageState extends State<AgendaPage> {
     ];
   }
 }
+
+class EventView extends StatelessWidget {
+  final Event event;
+  final EventCallback onTap;
+  final EventCallback onLeftTap;
+
+  const EventView({Key key, @required this.event, this.onTap, this.onLeftTap})
+      : assert(event != null),
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+//    final localization = Localization.of(context);
+//    final themeData = Theme.of(context);
+    final local = Localizations.localeOf(context).languageCode;
+    final dateFormat = DateFormat.yMd(local);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      child: Card(
+        child: ListTile(
+          title: Text(event.title),
+          subtitle: Column(
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Icon(Icons.schedule, size: 12),
+                  Text(' ${dateFormat.format(event.date)}'),
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: event.subject.color,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  Text(' ${event.subject.title}')
+                ],
+              )
+            ],
+          ),
+          trailing: Icon(Icons.more_vert),
+          onTap: () {
+            onTap(event);
+          },
+        ),
+      ),
+    );
+  }
+}
+
+typedef EventCallback(Event event);

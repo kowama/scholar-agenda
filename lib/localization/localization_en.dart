@@ -252,4 +252,7 @@ class LocalizationEN implements Localization {
 
   @override
   String get startCantBeBeforeAfter => 'Star can\'t be before after';
+
+  @override
+  String get share => 'Share';
 }

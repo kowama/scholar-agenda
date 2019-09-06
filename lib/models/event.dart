@@ -39,12 +39,12 @@ class Events extends Table {
 class Event extends EventDataClass {
   int id;
   String title;
+  int typeValue;
   DateTime date;
   DateTime start;
   DateTime end;
   DateTime remindMeAt;
   int repeatModeValue;
-  int typeValue;
   String note;
   int subjectId;
   Subject _subject;
@@ -56,11 +56,11 @@ class Event extends EventDataClass {
     this.start,
     this.end,
     this.remindMeAt,
-    EventRepeatMode repeatMode,
+    EventRepeatMode repeatMode = EventRepeatMode.noRepeat,
     EventType type,
-    this.note,
+    this.note = '',
     Subject subject,
-  })  : repeatModeValue = repeatMode?.value,
+  })  : repeatModeValue = repeatMode.value,
         typeValue = type?.value {
     _subject = subject;
     subjectId = _subject?.id;
@@ -69,11 +69,13 @@ class Event extends EventDataClass {
   Event.fromDataClass(EventDataClass object, {Subject subject})
       : id = object.id,
         title = object.title,
+        typeValue = object.typeValue,
         date = object.date,
         start = object.start,
         end = object.end,
         remindMeAt = object.remindMeAt,
-        repeatModeValue = object.repeatModeValue {
+        repeatModeValue = object.repeatModeValue,
+        note = object.note ?? '' {
     _subject = subject;
     subjectId = _subject?.id;
   }
@@ -156,20 +158,24 @@ class EventDao extends DatabaseAccessor<ScholarAgendaAppDb>
 
 class EventRepeatMode {
   static const EventRepeatMode noRepeat = EventRepeatMode._internal(0);
-  static const EventRepeatMode week = EventRepeatMode._internal(1);
-  static const EventRepeatMode twoWeek = EventRepeatMode._internal(2);
-  static const EventRepeatMode month = EventRepeatMode._internal(3);
+  static const EventRepeatMode day = EventRepeatMode._internal(1);
+  static const EventRepeatMode week = EventRepeatMode._internal(2);
+  static const EventRepeatMode twoWeek = EventRepeatMode._internal(3);
+  static const EventRepeatMode month = EventRepeatMode._internal(4);
+
+  static List<EventRepeatMode> get values => [noRepeat, week, twoWeek, month];
 
   final int value;
 
   const EventRepeatMode._internal(this.value)
-      : assert(value >= 0 && value <= 3);
+      : assert(value >= 0 && value <= 4);
 
   factory EventRepeatMode(int value) {
-    assert(value >= 0 && value <= 3);
+    assert(value >= 0 && value <= 4);
     if (value == 0) return noRepeat;
-    if (value == 1) return week;
-    if (value == 2) return twoWeek;
+    if (value == 1) return day;
+    if (value == 2) return week;
+    if (value == 3) return twoWeek;
     return month;
   }
 

@@ -4,10 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:intl/intl.dart';
 import 'package:scholar_agenda/blocs/blocs.dart';
+import 'package:scholar_agenda/commons/item.dart';
 import 'package:scholar_agenda/localization/localization.dart';
 import 'package:scholar_agenda/models/models.dart';
-
-import 'agenda_page.dart';
 
 class EventFormPage extends StatefulWidget {
   static const routeName = '/agenda/event/form';
@@ -21,8 +20,10 @@ class EventFormPage extends StatefulWidget {
         super(key: key);
 
   @override
-  _EventFormPageState createState() =>
-      _EventFormPageState(isCreate ? Event(type: eventType) : event);
+  _EventFormPageState createState() => _EventFormPageState(
+        isCreate ? Event(type: eventType) : event,
+        isCreate: isCreate,
+      );
 }
 
 class _EventFormPageState extends State<EventFormPage> {
@@ -39,8 +40,9 @@ class _EventFormPageState extends State<EventFormPage> {
   bool _allTheDay;
   Duration _timeBefore;
 
-  _EventFormPageState(this._event)
-      : _allTheDay = _event.type == EventType.homework;
+  _EventFormPageState(this._event, {bool isCreate})
+      : _allTheDay =
+            isCreate ? _event.type == EventType.homework : _event.start == null;
 
   @override
   void initState() {
@@ -48,7 +50,6 @@ class _EventFormPageState extends State<EventFormPage> {
     _subjectsBloc = BlocProvider.of<SubjectsBloc>(context);
     _eventsBloc = BlocProvider.of<EventsBloc>(context);
     _subjectsBloc.dispatch(LoadSubjects());
-    _eventsBloc.dispatch(LoadEvents());
   }
 
   @override
@@ -78,6 +79,7 @@ class _EventFormPageState extends State<EventFormPage> {
     final themeData = Theme.of(context);
     final local = Localizations.localeOf(context).languageCode;
     final reminders = _reminders();
+    final repeatMode = _repeatMode();
     return FormBuilder(
       key: formKey,
       autovalidate: _autoValidate,
@@ -220,26 +222,43 @@ class _EventFormPageState extends State<EventFormPage> {
                 ),
               ),
               const SizedBox(height: _verticalPad),
-              Visibility(
-                visible: _allTheDay,
-                child: FormBuilderDropdown(
-                  attribute: "remindMeAt",
-                  hint: Text('Remind me '),
-                  decoration: InputDecoration(
-                    labelText: 'Remind me ',
-                    border: OutlineInputBorder(),
-                  ),
-                  validators: [FormBuilderValidators.required()],
-                  items: reminders
-                      .map((reminder) => DropdownMenuItem<TimeSpan>(
-                            value: reminder,
-                            child: Text(reminder.label),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    if (value.duration) _timeBefore = value.duration;
-                  },
+              FormBuilderDropdown(
+                attribute: "remindMeAt",
+                hint: Text('Remind me '),
+                initialValue: null,
+                decoration: InputDecoration(
+                  labelText: 'Remind me ',
+                  border: OutlineInputBorder(),
                 ),
+                items: reminders
+                    .map((item) => DropdownMenuItem<Duration>(
+                          value: item.value,
+                          child: Text(item.label),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  _timeBefore = value;
+                },
+              ),
+              const SizedBox(height: _verticalPad),
+              FormBuilderDropdown(
+                attribute: "repeatMode",
+                initialValue: _event.repeatMode,
+                hint: Text('Repeat mode'),
+                decoration: InputDecoration(
+                  labelText: 'Repeat mode',
+                  border: OutlineInputBorder(),
+                ),
+                validators: [FormBuilderValidators.required()],
+                items: repeatMode
+                    .map((item) => DropdownMenuItem<EventRepeatMode>(
+                          value: item.value,
+                          child: Text(item.label),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  _event.repeatMode = value;
+                },
               ),
               const SizedBox(height: _verticalPad),
               FormBuilderTextField(
@@ -275,14 +294,14 @@ class _EventFormPageState extends State<EventFormPage> {
     );
   }
 
-  bool _saveEvent() {
+  bool _saveForm() {
     final localization = Localization.of(context);
     if (!formKey.currentState.validate()) {
       _autoValidate = true;
       _showInSnackBar(localization.pleaseFixErrors);
       return false;
     }
-    if (_event.end.isBefore(_event.end)) {
+    if (!_allTheDay && _event.end.isBefore(_event.end)) {
       _showInSnackBar(localization.startCantBeBeforeAfter, color: Colors.red);
     }
     // form validated
@@ -303,9 +322,8 @@ class _EventFormPageState extends State<EventFormPage> {
   }
 
   void _onSubmit() {
-    if (!_saveEvent()) return;
-    Navigator.pop(context);
-    Navigator.pushNamed(context, AgendaPage.routeName);
+    if (!_saveForm()) return;
+    Navigator.of(context).pop();
   }
 
   void _showInSnackBar(String message, {Color color}) {
@@ -348,27 +366,30 @@ class _EventFormPageState extends State<EventFormPage> {
         false;
   }
 
-  List<TimeSpan> _reminders() {
+  List<Item<Duration>> _reminders() {
     return [
-      TimeSpan(label: 'none'), //null reminder
-      TimeSpan(label: 'At time', duration: Duration(seconds: 5)),
-      TimeSpan(label: '1 m', duration: Duration(minutes: 1)),
-      TimeSpan(label: '5 m', duration: Duration(minutes: 1)),
-      TimeSpan(label: '15 m', duration: Duration(minutes: 1)),
-      TimeSpan(label: '30 m', duration: Duration(minutes: 1)),
-      TimeSpan(label: '1 h', duration: Duration(minutes: 1)),
-      TimeSpan(label: '5 h', duration: Duration(minutes: 1)),
-      TimeSpan(label: '1 day', duration: Duration(minutes: 1)),
-      TimeSpan(label: '2 days', duration: Duration(minutes: 1)),
-      TimeSpan(label: '1 week', duration: Duration(minutes: 1)),
-      TimeSpan(label: '2 weeks', duration: Duration(minutes: 1)),
+      Item(label: 'none'), //null reminder
+      Item(label: 'At time', value: Duration(seconds: 5)),
+      Item(label: '1 m', value: Duration(minutes: 1)),
+      Item(label: '5 m', value: Duration(minutes: 5)),
+      Item(label: '15 m', value: Duration(minutes: 15)),
+      Item(label: '30 m', value: Duration(minutes: 30)),
+      Item(label: '1 h', value: Duration(hours: 1)),
+      Item(label: '5 h', value: Duration(hours: 5)),
+      Item(label: '1 day', value: Duration(days: 1)),
+      Item(label: '2 days', value: Duration(days: 3)),
+      Item(label: '1 week', value: Duration(days: 7)),
+      Item(label: '2 weeks', value: Duration(days: 14)),
     ];
   }
-}
 
-class TimeSpan {
-  final label;
-  final duration;
-
-  TimeSpan({this.label, this.duration});
+  List<Item<EventRepeatMode>> _repeatMode() {
+    return [
+      Item(label: 'No reapeat', value: EventRepeatMode.noRepeat),
+      Item(label: 'Every Day', value: EventRepeatMode.day),
+      Item(label: 'Every week', value: EventRepeatMode.week),
+      Item(label: 'Two week', value: EventRepeatMode.twoWeek),
+      Item(label: 'Every Month', value: EventRepeatMode.month),
+    ];
+  }
 }

@@ -158,6 +158,8 @@ abstract class Localization {
 
   String get startCantBeBeforeAfter;
 
+  String get share;
+
   String dayOfWeek(int day);
 
   /// typeValue 0(Homework) 1(Exam) 2(Reminder)

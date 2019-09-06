@@ -6,9 +6,6 @@ import 'package:scholar_agenda/models/event.dart';
 abstract class EventsState extends Equatable {
   EventsState([List props = const <dynamic>[]]) : super(props);
 }
-
-class InitialEventsState extends EventsState {}
-
 class EventsLoading extends EventsState {
   @override
   String toString() {

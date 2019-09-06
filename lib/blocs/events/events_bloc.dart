@@ -11,7 +11,7 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
   EventsBloc({this.eventDao});
 
   @override
-  EventsState get initialState => InitialEventsState();
+  EventsState get initialState => EventsLoading();
 
   @override
   Stream<EventsState> mapEventToState(
