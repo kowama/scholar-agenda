@@ -79,7 +79,7 @@ class _EventFormPageState extends State<EventFormPage> {
     final themeData = Theme.of(context);
     final local = Localizations.localeOf(context).languageCode;
     final reminders = _reminders();
-    final repeatMode = _repeatMode();
+    final repeatMode = EventRepeatMode.values;
     return FormBuilder(
       key: formKey,
       autovalidate: _autoValidate,
@@ -117,10 +117,10 @@ class _EventFormPageState extends State<EventFormPage> {
                       attribute: "subject",
                       decoration: InputDecoration(
                         labelText: localization.subject,
+                        icon: Icon(Icons.book),
                         border: OutlineInputBorder(),
                       ),
                       hint: Text(localization.pickASubject),
-                      validators: [FormBuilderValidators.required()],
                       items: state.subjects
                           .map((subject) => DropdownMenuItem(
                                 value: subject,
@@ -158,6 +158,7 @@ class _EventFormPageState extends State<EventFormPage> {
                 format: DateFormat.yMMMMd(local),
                 decoration: InputDecoration(
                   labelText: localization.dateHint,
+                  icon: Icon(Icons.event),
                   border: OutlineInputBorder(),
                 ),
                 validators: [
@@ -172,9 +173,6 @@ class _EventFormPageState extends State<EventFormPage> {
                 attribute: "all_day",
                 initialValue: _allTheDay,
                 label: Text("All day"),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
                 onChanged: (value) {
                   setState(() {
                     _allTheDay = value;
@@ -184,41 +182,50 @@ class _EventFormPageState extends State<EventFormPage> {
               const SizedBox(height: _verticalPad),
               Visibility(
                 visible: !_allTheDay,
-                child: FormBuilderDateTimePicker(
-                  attribute: "start",
-                  initialValue: _event.start,
-                  inputType: InputType.time,
-                  format: DateFormat.Hm(local),
-                  decoration: InputDecoration(
-                    labelText: localization.start,
-                    border: OutlineInputBorder(),
-                  ),
-                  validators: [
-                    FormBuilderValidators.required(),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Expanded(
+                      child: FormBuilderDateTimePicker(
+                        attribute: "start",
+                        initialValue: _event.start,
+                        inputType: InputType.time,
+                        format: DateFormat.Hm(local),
+                        decoration: InputDecoration(
+                          labelText: localization.start,
+                          border: OutlineInputBorder(),
+                        ),
+                        validators: [
+                          FormBuilderValidators.required(),
+                        ],
+                        onChanged: (value) {
+                          _event.start = _allTheDay ? null : value;
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Expanded(
+                      child: FormBuilderDateTimePicker(
+                        attribute: "end",
+                        initialValue: _event.end,
+                        inputType: InputType.time,
+                        format: DateFormat.Hm(local),
+                        decoration: InputDecoration(
+                          labelText: localization.end,
+                          border: OutlineInputBorder(),
+                        ),
+                        validators: [
+                          FormBuilderValidators.required(),
+                        ],
+                        onChanged: (value) {
+                          _event.end = _allTheDay ? null : value;
+                        },
+                      ),
+                    )
                   ],
-                  onChanged: (value) {
-                    _event.start = _allTheDay ? null : value;
-                  },
-                ),
-              ),
-              const SizedBox(height: _verticalPad),
-              Visibility(
-                visible: !_allTheDay,
-                child: FormBuilderDateTimePicker(
-                  attribute: "end",
-                  initialValue: _event.end,
-                  inputType: InputType.time,
-                  format: DateFormat.Hm(local),
-                  decoration: InputDecoration(
-                    labelText: localization.end,
-                    border: OutlineInputBorder(),
-                  ),
-                  validators: [
-                    FormBuilderValidators.required(),
-                  ],
-                  onChanged: (value) {
-                    _event.end = _allTheDay ? null : value;
-                  },
                 ),
               ),
               const SizedBox(height: _verticalPad),
@@ -228,6 +235,7 @@ class _EventFormPageState extends State<EventFormPage> {
                 initialValue: null,
                 decoration: InputDecoration(
                   labelText: 'Remind me ',
+                  icon: Icon(Icons.schedule),
                   border: OutlineInputBorder(),
                 ),
                 items: reminders
@@ -247,13 +255,14 @@ class _EventFormPageState extends State<EventFormPage> {
                 hint: Text('Repeat mode'),
                 decoration: InputDecoration(
                   labelText: 'Repeat mode',
+                  icon: Icon(Icons.repeat),
                   border: OutlineInputBorder(),
                 ),
                 validators: [FormBuilderValidators.required()],
                 items: repeatMode
                     .map((item) => DropdownMenuItem<EventRepeatMode>(
-                          value: item.value,
-                          child: Text(item.label),
+                          value: item,
+                          child: Text(localization.repeatModeToString(item.value)),
                         ))
                     .toList(),
                 onChanged: (value) {
@@ -380,16 +389,6 @@ class _EventFormPageState extends State<EventFormPage> {
       Item(label: '2 days', value: Duration(days: 3)),
       Item(label: '1 week', value: Duration(days: 7)),
       Item(label: '2 weeks', value: Duration(days: 14)),
-    ];
-  }
-
-  List<Item<EventRepeatMode>> _repeatMode() {
-    return [
-      Item(label: 'No reapeat', value: EventRepeatMode.noRepeat),
-      Item(label: 'Every Day', value: EventRepeatMode.day),
-      Item(label: 'Every week', value: EventRepeatMode.week),
-      Item(label: 'Two week', value: EventRepeatMode.twoWeek),
-      Item(label: 'Every Month', value: EventRepeatMode.month),
     ];
   }
 }

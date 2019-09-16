@@ -160,10 +160,24 @@ abstract class Localization {
 
   String get share;
 
+  String get none;
+
+  String get dueDate;
+
+  String get allTheDay;
+
+  String get repeatMode;
+
+  String get daysAgo;
+
+  String get daysBefore;
+
   String dayOfWeek(int day);
 
   /// typeValue 0(Homework) 1(Exam) 2(Reminder)
   String eventType(int typeValue);
+
+  String repeatModeToString(int repeatModeValue);
 
   static Localization of(BuildContext context) {
     return Localizations.of<Localization>(context, Localization);

@@ -76,11 +76,17 @@ class _AgendaPageState extends State<AgendaPage> {
         body: BlocBuilder<EventsBloc, EventsState>(builder: (context, state) {
           if (state is EventsLoaded) {
             final events = state.events;
+            final homeWorks =
+                events.where((e) => e.type == EventType.homework).toList();
+            final exams =
+                events.where((e) => e.type == EventType.homework).toList();
+            final reminders =
+                events.where((e) => e.type == EventType.homework).toList();
             return TabBarView(
               children: [
-                _homeWorksTab(events),
-                _examsTab(events),
-                _remindersTab(events),
+                _homeWorksTab(homeWorks),
+                _examsTab(exams),
+                _remindersTab(reminders),
               ],
             );
           } else if (state is EventsLoading) {
@@ -97,13 +103,45 @@ class _AgendaPageState extends State<AgendaPage> {
     final localization = Localization.of(context);
     final themeData = Theme.of(context);
     if (events.isNotEmpty) {
+      final eventsByDateList = _groupEventByDate(events);
       return ListView(
-        children: events
-            .map((event) => EventView(
-                  event: event,
-                  onTap: _eventOnTap,
-                ))
-            .toList(),
+        children: eventsByDateList.map((eventsByDate) {
+          final localization = Localization.of(context);
+          final themeData = Theme.of(context);
+          final local = Localizations.localeOf(context).languageCode;
+          final dateFormat = DateFormat.yMd(local);
+          final schedule = eventsByDate.date.difference(DateTime.now()).inDays;
+          return Wrap(
+            children: <Widget>[
+              ListTile(
+                title: Text(
+                  dateFormat.format(eventsByDate.date),
+                  style: themeData.textTheme.headline
+                      .copyWith(color: themeData.primaryColor),
+                ),
+                trailing: Text(
+                  schedule == 0
+                      ? 'Today'
+                      : '${schedule.abs()}'
+                          ' ${schedule > 0 ? '${localization.daysBefore}' : '${localization.daysAgo}'}',
+                ),
+              ),
+              Card(
+                elevation: 0,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: eventsByDate.events
+                      .map((event) => EventView(
+                            event: event,
+                            onTap: _eventOnTap,
+                          ))
+                      .toList(),
+                ),
+              ),
+            ],
+          );
+        }).toList(),
       );
     }
     return Center(
@@ -241,6 +279,22 @@ class _AgendaPageState extends State<AgendaPage> {
       Choice(title: 'Show passed')
     ];
   }
+
+  List<EventsByDay> _groupEventByDate(List<Event> events) {
+    final days = events.map((e) => e.date).toSet().toList();
+
+    //remove double
+    return List.generate(
+        days.length,
+        (index) => EventsByDay(
+            date: days[index],
+            events: events
+                .where(
+                  (e) => e.date == days[index],
+                )
+                .toList())).toList()
+      ..sort((e1, e2) => e1.date.compareTo(e2.date));
+  }
 }
 
 class EventView extends StatelessWidget {
@@ -254,46 +308,62 @@ class EventView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-//    final localization = Localization.of(context);
-//    final themeData = Theme.of(context);
+    final localization = Localization.of(context);
+    final themeData = Theme.of(context);
     final local = Localizations.localeOf(context).languageCode;
     final dateFormat = DateFormat.yMd(local);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-      child: Card(
-        child: ListTile(
-          title: Text(event.title),
-          subtitle: Column(
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Icon(Icons.schedule, size: 12),
-                  Text(' ${dateFormat.format(event.date)}'),
-                ],
-              ),
-              Row(
-                children: <Widget>[
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: event.subject.color,
-                      shape: BoxShape.circle,
-                    ),
+    return Card(
+      child: ListTile(
+        title: Text(event.title),
+        subtitle: Column(
+          children: <Widget>[
+            SizedBox(
+              height: 2.0,
+            ),
+            Row(
+              children: <Widget>[
+                Icon(Icons.schedule, size: 12),
+                Text(' ${dateFormat.format(event.date)}'),
+              ],
+            ),
+            SizedBox(
+              height: 2.0,
+            ),
+            Row(
+              children: <Widget>[
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: event.subject == null
+                        ? themeData.hintColor
+                        : event.subject.color,
+                    shape: BoxShape.circle,
                   ),
-                  Text(' ${event.subject.title}')
-                ],
-              )
-            ],
-          ),
-          trailing: Icon(Icons.more_vert),
-          onTap: () {
-            onTap(event);
-          },
+                ),
+                Text(
+                  event.subject == null
+                      ? '  ${localization.none}'
+                      : '  ${event.subject.title}',
+                )
+              ],
+            )
+          ],
         ),
+        trailing: Icon(Icons.more_vert),
+        onTap: () {
+          onTap(event);
+        },
       ),
     );
   }
+}
+
+class EventsByDay {
+  final DateTime date;
+  final List<Event> events;
+
+  EventsByDay({@required this.date, @required this.events});
 }
 
 typedef EventCallback(Event event);

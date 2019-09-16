@@ -255,4 +255,35 @@ class LocalizationEN implements Localization {
 
   @override
   String get share => 'Share';
+
+  @override
+  String repeatModeToString(int repeatModeValue) {
+    assert(repeatModeValue >= 0 && repeatModeValue <= 4);
+    final repeatMode = [
+      'No repeat',
+      'Day',
+      'Week',
+      'Two Week',
+      'Two Month',
+    ];
+    return repeatMode[repeatModeValue];
+  }
+
+  @override
+  String get none => 'None';
+
+  @override
+  String get dueDate => 'Due date';
+
+  @override
+  String get allTheDay => 'All the day';
+
+  @override
+  String get repeatMode => 'Repeat mode';
+
+  @override
+  String get daysAgo => 'Days ago';
+
+  @override
+  String get daysBefore => 'Days before';
 }

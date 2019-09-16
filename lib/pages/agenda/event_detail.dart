@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:scholar_agenda/localization/localization.dart';
-import 'package:share/share.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:scholar_agenda/blocs/blocs.dart';
 import 'package:scholar_agenda/commons/choice.dart';
+import 'package:scholar_agenda/localization/localization.dart';
 import 'package:scholar_agenda/models/event.dart';
+import 'package:share/share.dart';
 
 import 'event_form.dart';
 
@@ -38,6 +39,11 @@ class _EventDetailPageState extends State<EventDetailPage> {
     final themeData = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(30),
+          ),
+        ),
         leading: IconButton(
           icon: Icon(Icons.close),
           onPressed: () {
@@ -60,7 +66,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Icon(
-                  Icons.event,
+                  Icons.title,
                   color: themeData.cardColor,
                 ),
                 Text('  ${event.title}',
@@ -69,7 +75,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
               ],
             ),
           ),
-          preferredSize: const Size.fromHeight(48.0),
+          preferredSize: const Size.fromHeight(96),
         ),
       ),
       body: _body(),
@@ -77,8 +83,55 @@ class _EventDetailPageState extends State<EventDetailPage> {
   }
 
   Widget _body() {
-    return Center(
-      child: Text(event.title),
+    final isAllTheDay = event.start == null;
+    final localization = Localization.of(context);
+    final themeData = Theme.of(context);
+    final local = Localizations.localeOf(context).languageCode;
+    final dateFormat = DateFormat.yMd(local);
+    final timeFormat = DateFormat.Hm(local);
+    return Card(
+      color: themeData.bottomAppBarColor,
+      margin: const EdgeInsets.all(10),
+      elevation: 5,
+      child: ListView(
+        children: <Widget>[
+          ListTile(
+            leading: Icon(Icons.event),
+            title: Text('${dateFormat.format(event.date)}'),
+            subtitle: Text(localization.dueDate),
+            trailing: isAllTheDay ? Text(localization.allTheDay) : null,
+          ),
+          Visibility(
+            visible: !isAllTheDay,
+            child: ListTile(
+//              title: Text(timeFormat.format(event.start)),
+                ),
+          ),
+          ListTile(
+            leading: Icon(Icons.school),
+            title: Text(event.subject.title),
+            subtitle: Text(localization.subject),
+          ),
+          ListTile(
+            leading: Icon(Icons.schedule),
+            title: Text(event.remindMeAt != null
+                ? timeFormat.formatDuration(event.remindMeAt)
+                : localization.none),
+            subtitle: Text(localization.reminder),
+          ),
+          ListTile(
+            leading: Icon(Icons.repeat),
+            title:
+                Text(localization.repeatModeToString(event.repeatMode.value)),
+            subtitle: Text(localization.repeatMode),
+          ),
+          ListTile(
+            leading: Icon(Icons.subject),
+            title: Text(
+                event.note.trim().isNotEmpty ? event.note : localization.none),
+          ),
+        ],
+      ),
     );
   }
 
@@ -132,7 +185,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
             content: Text('${Localization.of(context).delete} ${event.title}'),
             actions: <Widget>[
               FlatButton(
-                color: Colors.red[900],
+                color: Colors.red[800],
                 onPressed: () {
                   _eventsBloc.dispatch(DeleteEvent(event));
                   Navigator.of(context).pop();
